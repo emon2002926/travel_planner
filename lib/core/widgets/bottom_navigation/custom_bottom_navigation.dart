@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../constants/app_colors.dart';
 import '../../themes/theme_controller.dart';
 import '../../util/screen_size.dart';
-
 import 'package:get/get.dart';
 import '../text/app_text.dart';
 

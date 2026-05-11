@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
-
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../util/screen_size.dart';
 import '../text/app_text.dart';
-
-
 import 'package:travel_planner/core/constants/app_colors.dart';
 import 'package:travel_planner/core/themes/theme_controller.dart';
 

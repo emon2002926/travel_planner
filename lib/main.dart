@@ -4,6 +4,7 @@ import 'package:get_storage/get_storage.dart';
 import 'package:travel_planner/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/widgets/text/app_text.dart';
+import 'package:travel_planner/features/splash/views/splash_screen.dart';
 import 'core/themes/theme_controller.dart';
 import 'core/util/app_navigation.dart';
 import 'features/splash/controller/splash_controller.dart';
@@ -41,13 +42,7 @@ class MyApp extends StatelessWidget {
         darkTheme: ThemeData.dark(useMaterial3: true),
         themeMode: themeController.themeMode.value,
             navigatorKey: AppNavigation.navigatorKey,
-            home:  Scaffold(
-          body: Center(
-            child: AppText(data: "data",
-              color:  AppColors.textPrimary,
-            ),
-          ),
-        ),
+            home:SplashScreen()
       ),
     );
   }

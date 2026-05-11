@@ -66,7 +66,7 @@ class AppText extends StatelessWidget {
       return styleParams(googleFontFamily!());
     }
 
-    return GoogleFonts.cormorantGaramond(
+    return GoogleFonts.inter(
       height: height,
       fontSize: responsiveFontSize,
       color: resolvedColor,
