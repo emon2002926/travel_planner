@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:travel_planner/core/widgets/text/app_text.dart';
-import '../constants/app_colors.dart';
 import 'buttons/app_button.dart';
 
 
@@ -24,7 +23,7 @@ class SuccessDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      backgroundColor: AppColors.instance.white50,
+      // backgroundColor: AppColors.instance.white50,
       child: Padding(
         padding: const EdgeInsets.all(24),
         child: Column(

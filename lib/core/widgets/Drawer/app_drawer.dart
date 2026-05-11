@@ -35,7 +35,7 @@ class _PremiumPaywallSheetState extends State<PremiumPaywallSheet> {
     return SafeArea(
       child: Container(
         decoration:  BoxDecoration(
-          color: AppColors.instance.background,
+          color: AppColors.scaffoldBg,
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         padding: EdgeInsets.fromLTRB(

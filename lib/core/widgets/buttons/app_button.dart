@@ -7,6 +7,10 @@ import '../../util/screen_size.dart';
 import '../text/app_text.dart';
 
 
+import 'package:travel_planner/core/constants/app_colors.dart';
+import 'package:travel_planner/core/themes/theme_controller.dart';
+
+
 class AppButton extends StatelessWidget {
   final String buttonText;
   final VoidCallback? onPressed;
@@ -49,111 +53,120 @@ class AppButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ Use ScreenSize extension — clamped for tablets
-    final double resolvedRadius = useResponsiveSize
-        ? context.w(borderRadius ?? 25)
-        : (borderRadius ?? 25);
+    return Obx(() {
+      final tc = GetInstance().isRegistered<ThemeController>()
+          ? Get.find<ThemeController>()
+          : null;
+      tc?.themeMode.value;
+      tc?.platformBrightness;
 
-    final double resolvedHeight = useResponsiveSize
-        ? context.h(buttonHeight ?? 50)
-        : (buttonHeight ?? 50);
+      final double resolvedRadius = useResponsiveSize
+          ? context.w(borderRadius ?? 25)
+          : (borderRadius ?? 25);
 
-    final double resolvedFontSize = useResponsiveSize
-        ? context.sp(fontSize ?? 16)
-        : (fontSize ?? 16);
+      final double resolvedHeight = useResponsiveSize
+          ? context.h(buttonHeight ?? 50)
+          : (buttonHeight ?? 50);
 
-    final double resolvedIconSize = useResponsiveSize
-        ? context.sp(fontSize ?? 24)
-        : (fontSize ?? 24);
+      final double resolvedFontSize = useResponsiveSize
+          ? context.sp(fontSize ?? 16)
+          : (fontSize ?? 16);
 
-    final bool isDisabled = onPressed == null || isLoading;
+      final double resolvedIconSize = useResponsiveSize
+          ? context.sp(fontSize ?? 24)
+          : (fontSize ?? 24);
 
-    return SizedBox(
-      width: buttonWidth ?? double.infinity,
-      height: resolvedHeight,
-      child: Opacity(
-        opacity: isDisabled ? 0.6 : 1.0,
-        child: Container(
-          decoration: BoxDecoration(
-            color: fillColor ?? const Color(0xFFBC9041),
-            borderRadius: BorderRadius.circular(resolvedRadius),
-            border: Border.all(
-              color: borderColor ?? Colors.transparent,
-              width: borderWidth ?? 0,
-            ),
-          ),
-          child: ElevatedButton(
-            onPressed: isDisabled ? null : onPressed,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.transparent,
-              shadowColor: Colors.transparent,
-              elevation: elevation ?? 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(resolvedRadius),
+      final bool isDisabled = onPressed == null || isLoading;
+
+      final Color resolvedFillColor = fillColor ?? AppColors.primary;
+      final Color resolvedTextColor = textColor ?? AppColors.textOnPrimary;
+
+      return SizedBox(
+        width: buttonWidth ?? double.infinity,
+        height: resolvedHeight,
+        child: Opacity(
+          opacity: isDisabled ? 0.6 : 1.0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: resolvedFillColor,
+              borderRadius: BorderRadius.circular(resolvedRadius),
+              border: Border.all(
+                color: borderColor ?? Colors.transparent,
+                width: borderWidth ?? 0,
               ),
-              padding: EdgeInsets.zero,
-              disabledBackgroundColor: Colors.transparent,
             ),
-            child: isLoading
-                ? Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  height: context.h(20),
-                  width: context.w(20),
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation(
-                        textColor ?? Colors.white),
-                    strokeWidth: 2.5,
-                  ),
+            child: ElevatedButton(
+              onPressed: isDisabled ? null : onPressed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                elevation: elevation ?? 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(resolvedRadius),
                 ),
-                if (loadingText != null) ...[
-                  SizedBox(width: context.w(12)),
-                  Text(
-                    loadingText!,
-                    style: TextStyle(
-                      color: textColor ?? Colors.white,
-                      fontSize: resolvedFontSize,
-                      fontWeight: fontWeight ?? FontWeight.w600,
+                padding: EdgeInsets.zero,
+                disabledBackgroundColor: Colors.transparent,
+              ),
+              child: isLoading
+                  ? Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    height: context.h(20),
+                    width: context.w(20),
+                    child: CircularProgressIndicator(
+                      valueColor:
+                      AlwaysStoppedAnimation(resolvedTextColor),
+                      strokeWidth: 2.5,
                     ),
                   ),
+                  if (loadingText != null) ...[
+                    SizedBox(width: context.w(12)),
+                    Text(
+                      loadingText!,
+                      style: TextStyle(
+                        color: resolvedTextColor,
+                        fontSize: resolvedFontSize,
+                        fontWeight: fontWeight ?? FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ],
-              ],
-            )
-                : Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (prefixIcon != null) ...[
-                  Icon(prefixIcon,
-                      color: textColor ?? Colors.white,
-                      size: resolvedIconSize),
-                  SizedBox(width: context.w(8)),
+              )
+                  : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (prefixIcon != null) ...[
+                    Icon(prefixIcon,
+                        color: resolvedTextColor,
+                        size: resolvedIconSize),
+                    SizedBox(width: context.w(8)),
+                  ],
+                  AppText(
+                    data: buttonText,
+                    color: resolvedTextColor,
+                    fontSize: fontSize ?? 16,
+                    fontWeight: fontWeight ?? FontWeight.w600,
+                    useResponsiveFontSize: useResponsiveSize,
+                    googleFontFamily: GoogleFonts.jost,
+                  ),
+                  if (suffixIcon != null) ...[
+                    SizedBox(width: context.w(8)),
+                    Icon(suffixIcon,
+                        color: resolvedTextColor,
+                        size: resolvedIconSize),
+                  ],
                 ],
-                AppText(
-                  data: buttonText,
-                  color: textColor ?? Colors.white,
-                  fontSize: fontSize ?? 16,
-                  fontWeight: fontWeight ?? FontWeight.w600,
-                  useResponsiveFontSize: useResponsiveSize,
-                  googleFontFamily: GoogleFonts.jost,
-                ),
-                if (suffixIcon != null) ...[
-                  SizedBox(width: context.w(8)),
-                  Icon(suffixIcon,
-                      color: textColor ?? Colors.white,
-                      size: resolvedIconSize),
-                ],
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
-  // ── Loading Overlay ───────────────────────────────────────────────────────
   static Widget buildLoadingOverlay({
     required RxBool isLoading,
     required String loadingMessage,
@@ -168,10 +181,12 @@ class AppButton extends StatelessWidget {
           child: Builder(
             builder: (context) => Container(
               padding: EdgeInsets.all(context.w(24)),
-              margin: EdgeInsets.symmetric(horizontal: context.w(40)),
+              margin:
+              EdgeInsets.symmetric(horizontal: context.w(40)),
               decoration: BoxDecoration(
-                color: cardColor ?? const Color(0xFFF5F5DC),
-                borderRadius: BorderRadius.circular(context.w(16)),
+                color: cardColor ?? AppColors.cardBg,
+                borderRadius:
+                BorderRadius.circular(context.w(16)),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.1),
@@ -186,9 +201,9 @@ class AppButton extends StatelessWidget {
                   SizedBox(
                     height: context.w(40),
                     width: context.w(40),
-                    child: const CircularProgressIndicator(
+                    child: CircularProgressIndicator(
                       valueColor: AlwaysStoppedAnimation(
-                          Color(0xFF9B7EBD)),
+                          AppColors.primary),
                       strokeWidth: 3,
                     ),
                   ),
@@ -199,7 +214,7 @@ class AppButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: context.sp(16),
                       fontWeight: FontWeight.w500,
-                      color: const Color(0xFF4A4A4A),
+                      color: AppColors.textPrimary,
                       letterSpacing: 0.5,
                     ),
                   ),
