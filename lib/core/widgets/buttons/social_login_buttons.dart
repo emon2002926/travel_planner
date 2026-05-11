@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
 import '../../util/screen_size.dart';
 import '../text/app_text.dart';
-
 import 'package:get/get.dart';
 import 'package:travel_planner/core/constants/app_colors.dart';
 import 'package:travel_planner/core/themes/theme_controller.dart';
@@ -37,8 +35,7 @@ class SocialButton extends StatelessWidget {
       tc?.themeMode.value;
       tc?.platformBrightness;
 
-      final Color bgColor =
-      tc?.isActuallyDark == true ? AppColors.cardBg : const Color(0xFFE8E5DF);
+      final Color bgColor = AppColors.cardBg ;
 
       final Color iconColor =
       tc?.isActuallyDark == true ? AppColors.textPrimary : Colors.black;
@@ -55,6 +52,7 @@ class SocialButton extends StatelessWidget {
             color: bgColor,
             borderRadius:
             BorderRadius.circular(context.responsiveSize(28)),
+            border: Border.all(color: AppColors.borderColor)
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,

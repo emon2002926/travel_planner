@@ -2,7 +2,7 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 
-import '../views/welcome_screen.dart';
+import '../../auth/views/welcome_screen.dart';
 
 class OnBoardingController extends GetxController {
   final PageController pageController = PageController();

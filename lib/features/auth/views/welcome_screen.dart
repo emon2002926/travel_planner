@@ -5,13 +5,8 @@ import '../../../core/themes/theme_controller.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../../core/widgets/buttons/social_login_buttons.dart';
 import '../../../core/widgets/text/app_text.dart';
+import '../controllers/welcome_screen_controller.dart';
 
-class WelcomeController extends GetxController {
-  void onContinueWithEmail() => Get.toNamed('/login');
-  void onContinueWithGoogle() {}
-  void onTermsTap() => Get.toNamed('/terms');
-  void onPrivacyTap() => Get.toNamed('/privacy');
-}
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});

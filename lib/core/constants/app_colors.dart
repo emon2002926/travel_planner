@@ -36,6 +36,9 @@ class AppColors {
   static Color get tripCardBg =>
       _dark ? const Color(0xFF1E3A6E) : const Color(0xFF1C4DB8);
 
+  static Color get borderColor =>
+      _dark ? const Color(0xFFD9D9D9) : const Color(0xFF989898);
+
   static Color get textPrimary =>
       _dark ? const Color(0xFFFFFFFF) : const Color(0xFF111827);
 
