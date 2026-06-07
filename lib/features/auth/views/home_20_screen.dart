@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/widgets/buttons/app_button.dart';
