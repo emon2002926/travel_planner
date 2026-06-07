@@ -27,79 +27,70 @@ class Home20Screen extends StatelessWidget {
       return Scaffold(
         backgroundColor: AppColors.scaffoldBg,
         body: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: controller.onClose,
-                  child: Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.cardBg,
-                    ),
-                    child: Icon(
-                      Icons.close,
-                      color: AppColors.textPrimary,
-                      size: 18,
-                    ),
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: controller.onDismiss,
+                            child: Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.cardBg,
+                              ),
+                              child: Icon(
+                                Icons.close,
+                                color: AppColors.textPrimary,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Center(child: const AuthTripNestWordmark()),
+                          ),
+                          const SizedBox(width: 36),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      AppText(
+                        data: 'Upgrade to access premium features',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                      const SizedBox(height: 20),
+                      ...plans.map(
+                            (plan) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: _PlanCard(
+                            data: plan,
+                            selectedPlan: controller.selectedPlan.value,
+                            onTap: () => controller.selectPlan(plan.plan),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 16),
-                const Center(child: AuthTripNestWordmark()),
-                const SizedBox(height: 32),
-                _PlanCard(
-                  emoji: '⭐',
-                  title: 'Monthly',
-                  description: 'Perfect for short-term travelers',
-                  price: '\$4.99',
-                  plan: PlanType.monthly,
-                  selectedPlan: controller.selectedPlan.value,
-                  onTap: () => controller.selectPlan(PlanType.monthly),
-                ),
-                const SizedBox(height: 12),
-                _PlanCard(
-                  emoji: '🏆',
-                  title: 'Quarterly',
-                  description: 'Save more with 3-month access',
-                  price: '\$13.99',
-                  plan: PlanType.quarterly,
-                  selectedPlan: controller.selectedPlan.value,
-                  onTap: () => controller.selectPlan(PlanType.quarterly),
-                ),
-                const SizedBox(height: 12),
-                _PlanCard(
-                  emoji: '👑',
-                  title: 'Annual',
-                  description: 'Full-year access with premium benefits',
-                  price: '\$49.99',
-                  plan: PlanType.annual,
-                  selectedPlan: controller.selectedPlan.value,
-                  onTap: () => controller.selectPlan(PlanType.annual),
-                  badge: 'Save \$9.99',
-                ),
-                const Spacer(),
-                AppButton(
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
+                child: AppButton(
                   buttonText: 'Next',
                   onPressed: controller.onNext,
                   buttonHeight: 54,
                 ),
-                const SizedBox(height: 12),
-                Center(
-                  child: AppText(
-                    data: 'Enjoy 3 days free, then \$49 per year',
-                    fontSize: 13,
-                    fontWeight: FontWeight.w400,
-                    color: AppColors.textSecondary,
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       );
@@ -109,28 +100,18 @@ class Home20Screen extends StatelessWidget {
 
 class _PlanCard extends StatelessWidget {
   const _PlanCard({
-    required this.emoji,
-    required this.title,
-    required this.description,
-    required this.price,
-    required this.plan,
+    required this.data,
     required this.selectedPlan,
     required this.onTap,
-    this.badge,
   });
 
-  final String emoji;
-  final String title;
-  final String description;
-  final String price;
-  final PlanType plan;
+  final PlanData data;
   final PlanType selectedPlan;
   final VoidCallback onTap;
-  final String? badge;
 
   @override
   Widget build(BuildContext context) {
-    final isSelected = plan == selectedPlan;
+    final isSelected = data.plan == selectedPlan;
 
     return GestureDetector(
       onTap: onTap,
@@ -138,62 +119,85 @@ class _PlanCard extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: AppColors.cardBg,
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(14),
               border: Border.all(
                 color: isSelected ? AppColors.primary : Colors.transparent,
                 width: 1.5,
               ),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.iconBg,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Text(
-                      emoji,
-                      style: const TextStyle(fontSize: 22),
+                Row(
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: AppColors.iconBg,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Text(
+                          data.emoji,
+                          style: const TextStyle(fontSize: 22),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      AppText(
-                        data: title,
-                        fontSize: 15,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AppText(
+                        data: data.title,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
-                      const SizedBox(height: 2),
+                    ),
+                    if (data.price != null)
                       AppText(
-                        data: description,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w400,
-                        color: AppColors.textSecondary,
+                        data: data.price!,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
                       ),
-                    ],
-                  ),
+                  ],
                 ),
-                AppText(
-                  data: price,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.primary,
+                const SizedBox(height: 12),
+                ...data.features.map(
+                      (feature) => Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Row(
+                      children: [
+                        Icon(
+                          feature.included
+                              ? Icons.check_circle
+                              : Icons.cancel,
+                          size: 18,
+                          color: feature.included
+                              ? AppColors.success
+                              : AppColors.error,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: AppText(
+                            data: feature.text,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.textPrimary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
-          if (badge != null)
+          if (data.badge != null)
             Positioned(
               top: -10,
               right: 16,
@@ -206,7 +210,7 @@ class _PlanCard extends StatelessWidget {
                   border: Border.all(color: AppColors.inputBorder),
                 ),
                 child: AppText(
-                  data: badge!,
+                  data: data.badge!,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   color: AppColors.textPrimary,
