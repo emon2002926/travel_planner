@@ -7,7 +7,6 @@ import '../util/storage_service.dart';
 class ThemeController extends GetxController {
   var themeMode = ThemeMode.system.obs;
 
-  // ✅ Tracks actual brightness separately so system changes are reactive
   final _platformBrightness = Brightness.light.obs;
   Brightness get platformBrightness => _platformBrightness.value;
 
@@ -29,18 +28,15 @@ class ThemeController extends GetxController {
     super.onInit();
     _loadThemeFromStorage();
 
-    // ✅ Seed current brightness
     _platformBrightness.value =
         SchedulerBinding.instance.platformDispatcher.platformBrightness;
 
-    // ✅ Listen for system brightness changes (e.g. user switches phone to dark)
     SchedulerBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
         _onPlatformBrightnessChanged;
   }
 
   @override
   void onClose() {
-    // ✅ Clean up the listener
     SchedulerBinding.instance.platformDispatcher.onPlatformBrightnessChanged =
     null;
     super.onClose();
@@ -78,7 +74,6 @@ class ThemeController extends GetxController {
   bool get isLightMode => themeMode.value == ThemeMode.light;
   bool get isSystemMode => themeMode.value == ThemeMode.system;
 
-  // ✅ Now fully reactive — reads _platformBrightness (observable)
   bool get isActuallyDark {
     if (themeMode.value == ThemeMode.system) {
       return _platformBrightness.value == Brightness.dark;

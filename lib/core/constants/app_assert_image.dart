@@ -9,7 +9,7 @@
     final String appleLogo = "assets/icons/apple_logo.png";
     final String googleLogo = "assets/icons/google_icon.png";
     final String profile = "assets/images/profile_demo.png";
-    final String splashImage  = "assets/images/rig_logo_splash.png";
+    final String splashImage  = "assets/images/trip_logo_splash.png";
 
     final String backgroundImage = "assets/images/background.png";
     final String onboardingImage1 = "assets/onboarding/anja_image.png";

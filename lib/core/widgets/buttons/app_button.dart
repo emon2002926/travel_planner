@@ -57,8 +57,8 @@ class AppButton extends StatelessWidget {
       tc?.platformBrightness;
 
       final double resolvedRadius = useResponsiveSize
-          ? context.w(borderRadius ?? 25)
-          : (borderRadius ?? 25);
+          ? context.w(borderRadius ?? 10)
+          : (borderRadius ?? 10);
 
       final double resolvedHeight = useResponsiveSize
           ? context.h(buttonHeight ?? 50)

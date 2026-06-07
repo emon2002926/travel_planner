@@ -9,7 +9,6 @@ import '../app_text.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/themes/theme_controller.dart';
 
-
 class AppTextField extends StatefulWidget {
   final String? label;
   final String? label2;
@@ -70,7 +69,7 @@ class AppTextField extends StatefulWidget {
 
 class _AppTextFieldState extends State<AppTextField> {
   late FocusNode _effectiveFocusNode;
-  bool _isFocused = false;
+  final RxBool _isFocused = false.obs;
 
   @override
   void initState() {
@@ -80,7 +79,7 @@ class _AppTextFieldState extends State<AppTextField> {
   }
 
   void _onFocusChange() {
-    setState(() => _isFocused = _effectiveFocusNode.hasFocus);
+    _isFocused.value = _effectiveFocusNode.hasFocus;
   }
 
   @override
@@ -98,6 +97,8 @@ class _AppTextFieldState extends State<AppTextField> {
           : null;
       tc?.themeMode.value;
       tc?.platformBrightness;
+
+      final isFocused = _isFocused.value;
 
       final effectiveSuffixTap =
           widget.suffixIconOnTap ?? widget.onSuffixIconTap;
@@ -123,16 +124,16 @@ class _AppTextFieldState extends State<AppTextField> {
       final Color resolvedHintColor =
           widget.hintTextColor ?? AppColors.inputHint;
 
-      final Color resolvedPrefixIconColor = _isFocused
+      final Color resolvedPrefixIconColor = isFocused
           ? (widget.focusedErrorBorderColor ?? AppColors.primary)
           : AppColors.textSecondary;
 
-      final Color activeBorderColor = _isFocused
+      final Color activeBorderColor = isFocused
           ? (widget.focusedErrorBorderColor ?? AppColors.primary)
           : (widget.borderColor ?? AppColors.inputBorder);
 
       final borderSide = BorderSide(
-          color: activeBorderColor, width: _isFocused ? 1.5 : 1.0);
+          color: activeBorderColor, width: isFocused ? 1.5 : 1.0);
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -144,7 +145,7 @@ class _AppTextFieldState extends State<AppTextField> {
                 AppText(
                   data: widget.label!,
                   fontWeight: FontWeight.w600,
-                  color: _isFocused
+                  color: isFocused
                       ? (widget.focusedErrorBorderColor ?? AppColors.primary)
                       : AppColors.textPrimary,
                   fontSize: 14,
