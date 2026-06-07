@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 
+import '../views/forgot_password_screen.dart';
 import '../views/sign_up_screen.dart';
 
 class SignInController extends GetxController {
@@ -13,7 +14,9 @@ class SignInController extends GetxController {
 
   void togglePassword() => passwordVisible.value = !passwordVisible.value;
 
-  void onForgotPassword() {}
+  void onForgotPassword() {
+    AppNavigation.push(ForgotPasswordScreen());
+  }
 
   void onSignIn() {}
 

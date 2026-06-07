@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
-import 'package:travel_planner/features/auth/views/enter_otp_screen.dart';
 
-class SignUpController extends GetxController {
-  final emailController = TextEditingController();
+import '../views/auth_screen.dart';
+
+class ResetPasswordController extends GetxController {
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -16,11 +16,12 @@ class SignUpController extends GetxController {
   void toggleConfirmPassword() =>
       confirmPasswordVisible.value = !confirmPasswordVisible.value;
 
-  void onSignUp() {AppNavigation.push(EnterOtpScreen(isFromSignUp: true));}
+  void onConfirm() {
+    AppNavigation.push(AuthScreen());
+  }
 
   @override
   void onClose() {
-    emailController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.onClose();
