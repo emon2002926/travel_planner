@@ -9,11 +9,13 @@ import '../text/app_text.dart';
 class CustomBottomNavigationBar extends StatelessWidget {
   final int currentIndex;
   final Function(int) onTabSelected;
+  final VoidCallback? onSupportPressed;
 
   const CustomBottomNavigationBar({
     super.key,
     required this.currentIndex,
     required this.onTabSelected,
+    this.onSupportPressed,
   });
 
   @override
@@ -27,70 +29,139 @@ class CustomBottomNavigationBar extends StatelessWidget {
 
       final bool isDark = tc?.isActuallyDark ?? false;
 
-      final Color bgColor =
-      isDark ? AppColors.navBg : const Color(0xFFF0EFE9);
-
-      final Color borderColor =
-      isDark ? AppColors.inputBorder : const Color(0xFFE0DDD7);
-
+      final Color barColor = isDark ? AppColors.navBg : Colors.white;
       final Color activeColor =
-      isDark ? AppColors.navActive : const Color(0xFF3D7060);
+      isDark ? AppColors.primaryLight : AppColors.primary;
+      final Color inactiveColor = AppColors.navInactive;
+      final Color centerCircleColor =
+      isDark ? AppColors.iconBg : const Color(0xFFF1F2F4);
 
-      final Color inactiveColor =
-      isDark ? AppColors.navInactive : const Color(0xFFB0ADA8);
-
-      final items = [
-        {'icon': Icons.home_outlined, 'label': 'Home'},
-        {'icon': Icons.history_outlined, 'label': 'History'},
-        {'icon': Icons.person_outline, 'label': 'Profile'},
-        {'icon': Icons.settings_outlined, 'label': 'Settings'},
+      final leftItems = [
+        {
+          'activeIcon': Icons.home,
+          'icon': Icons.home_outlined,
+          'label': 'Home',
+          'index': 0,
+        },
+        {
+          'activeIcon': Icons.luggage,
+          'icon': Icons.luggage_outlined,
+          'label': 'Trips',
+          'index': 1,
+        },
       ];
 
-      return Container(
-        decoration: BoxDecoration(
-          color: bgColor,
-          border: Border(
-            top: BorderSide(color: borderColor, width: 1),
-          ),
-        ),
-        child: SafeArea(
-          top: false,
-          child: SizedBox(
-            height: context.h(64),
-            child: Row(
-              children: List.generate(items.length, (index) {
-                final isSelected = currentIndex == index;
-                final label = items[index]['label'] as String;
-                final icon = items[index]['icon'] as IconData;
+      final rightItems = [
+        {
+          'activeIcon': Icons.verified_user,
+          'icon': Icons.shield_outlined,
+          'label': 'Safety',
+          'index': 2,
+        },
+        {
+          'activeIcon': Icons.more_horiz,
+          'icon': Icons.more_horiz,
+          'label': 'More',
+          'index': 3,
+        },
+      ];
 
-                return Expanded(
-                  child: GestureDetector(
-                    onTap: () => onTabSelected(index),
-                    behavior: HitTestBehavior.opaque,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          icon,
-                          size: context.sp(24),
-                          color: isSelected ? activeColor : inactiveColor,
-                        ),
-                        SizedBox(height: context.h(4)),
-                        AppText(
-                          data: label,
-                          fontSize: 13,
-                          googleFontFamily: GoogleFonts.jost,
-                          fontWeight: isSelected
-                              ? FontWeight.w700
-                              : FontWeight.w400,
-                          color: isSelected ? activeColor : inactiveColor,
-                        ),
-                      ],
+      Widget buildItem(Map<String, dynamic> item) {
+        final int index = item['index'] as int;
+        final bool isSelected = currentIndex == index;
+        final IconData icon = isSelected
+            ? item['activeIcon'] as IconData
+            : item['icon'] as IconData;
+        final String label = item['label'] as String;
+
+        return Expanded(
+          child: GestureDetector(
+            onTap: () => onTabSelected(index),
+            behavior: HitTestBehavior.opaque,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: context.sp(26),
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
+                SizedBox(height: context.h(4)),
+                AppText(
+                  data: label,
+                  fontSize: 13,
+                  googleFontFamily: GoogleFonts.jost,
+                  fontWeight:
+                  isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? activeColor : inactiveColor,
+                ),
+              ],
+            ),
+          ),
+        );
+      }
+
+      return SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(
+            left: context.w(16),
+            right: context.w(16),
+            top: context.h(26),
+            bottom: context.h(12),
+          ),
+          child: Stack(
+            clipBehavior: Clip.none,
+            alignment: Alignment.topCenter,
+            children: [
+              Container(
+                height: context.h(68),
+                decoration: BoxDecoration(
+                  color: barColor,
+                  borderRadius: BorderRadius.circular(context.w(40)),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    buildItem(leftItems[0]),
+                    buildItem(leftItems[1]),
+                    SizedBox(width: context.w(64)),
+                    buildItem(rightItems[0]),
+                    buildItem(rightItems[1]),
+                  ],
+                ),
+              ),
+              Positioned(
+                top: -context.h(22),
+                child: GestureDetector(
+                  onTap: onSupportPressed,
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    width: context.w(62),
+                    height: context.w(62),
+                    decoration: BoxDecoration(
+                      color: centerCircleColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: barColor,
+                        width: context.w(5),
+                      ),
+                    ),
+                    child: Icon(
+                      Icons.headset_mic,
+                      size: context.sp(28),
+                      color: activeColor,
                     ),
                   ),
-                );
-              }),
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       );

@@ -6,18 +6,20 @@
 // import '../../features/units/binding/units_binding.dart';
 
 // import '../../features/base_screen/binding/base_binding.dart';
-//
-// class AppBindings {
-//   AppBindings._();
-//   static void init() {
-//     // SignInBinding.dependencies();
-//     BaseBinding.dependencies();
-//     // HomeBinding.dependencies();
-//     // NotificationBinding.dependencies();
-//     // UnitsBinding.dependencies();
-//     // OtherAuthBindings.forgotPassDependencies();
-//     // OtherAuthBindings.otpDependencies();
-//     // OtherAuthBindings.resetPassDependencies();
-//   }
-//
-// }
+
+import '../../features/base_screen/binding/base_binding.dart';
+
+class AppBindings {
+  AppBindings._();
+  static void init() {
+    // SignInBinding.dependencies();
+    BaseBinding.dependencies();
+    // HomeBinding.dependencies();
+    // NotificationBinding.dependencies();
+    // UnitsBinding.dependencies();
+    // OtherAuthBindings.forgotPassDependencies();
+    // OtherAuthBindings.otpDependencies();
+    // OtherAuthBindings.resetPassDependencies();
+  }
+
+}

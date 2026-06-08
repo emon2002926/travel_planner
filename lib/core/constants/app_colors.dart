@@ -23,6 +23,9 @@ class AppColors {
   static Color get scaffoldBg =>
       _dark ? const Color(0xFF0A0F1E) : const Color(0xFFF2F4F7);
 
+  static Color get containerBg =>
+      _dark ? const Color(0xFF0A0F1E) : const Color(0xCCF1F1F1);
+
   static Color get surface =>
       _dark ? const Color(0xFF0F1729) : const Color(0xFFFFFFFF);
 

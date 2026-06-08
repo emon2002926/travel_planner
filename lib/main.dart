@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_storage/get_storage.dart';
+import 'package:travel_planner/core/bindings/app_bindings.dart';
 import 'package:travel_planner/core/constants/app_colors.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/widgets/text/app_text.dart';
@@ -14,7 +15,8 @@ void main() async {
   await GetStorage.init();
   Get.put(ThemeController());
   Get.put(SplashController());
-
+  AppBindings.init();
+  GetStorage();
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/settings/views/change_pin_screen.dart';
+import 'package:travel_planner/features/settings/views/faqs_screen.dart';
+import 'package:travel_planner/features/settings/views/notification_screen.dart';
+import 'package:travel_planner/features/settings/views/terms_conditions_screen.dart';
 
 import '../../../core/themes/theme_controller.dart';
+import '../views/change_password_screen.dart';
+import '../views/privacy_policy_screen.dart';
+import '../views/profile_update_screen.dart';
 
 class SettingsController extends GetxController {
   final RxBool isDarkMode = false.obs;
@@ -17,13 +25,31 @@ class SettingsController extends GetxController {
   void toggleNotifications(bool value) =>
       notificationsEnabled.value = value;
 
-  void onProfileUpdate() {}
-  void onChangePassword() {}
-  void onChangePIN() {}
-  void onDeleteAccount() {}
-  void onTermsAndConditions() {}
-  void onPrivacyPolicy() {}
-  void onFaqs() {}
-  void onNotificationTap() {}
-  void onProfileArrowTap() {}
+  void onProfileUpdate() {
+    AppNavigation.push(ProfileUpdateScreen());
+  }
+  void onChangePassword() {
+    AppNavigation.push(ChangePasswordScreen());
+  }
+  void onChangePIN() {
+    AppNavigation.push(ChangePinScreen());
+  }
+  void onDeleteAccount() {
+    // AppNavigation.push(DeleteAccountScreen());
+  }
+  void onTermsAndConditions() {
+    AppNavigation.push(TermsConditionsScreen());
+  }
+  void onPrivacyPolicy() {
+    AppNavigation.push(PrivacyPolicyScreen());
+  }
+  void onFaqs() {
+    AppNavigation.push(FaqsScreen());
+  }
+  void onNotificationTap() {
+    AppNavigation.push(NotificationScreen());
+  }
+  void onProfileArrowTap() {
+    // AppNavigation.push(ProfileA());
+  }
 }

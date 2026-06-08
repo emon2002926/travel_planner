@@ -18,7 +18,7 @@ class BasePage extends StatelessWidget {
     final controller = Get.find<BaseController>();
 
     final screens = [
-      HomeView(),
+      HomePage(),
       TripsPage(),
       AiAssistant(),
       SafetyPage(),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/base_screen/views/base_page.dart';
+import 'package:travel_planner/features/settings/views/settings_page.dart';
 
 import '../views/forgot_password_screen.dart';
 import '../views/sign_up_screen.dart';
@@ -18,7 +20,11 @@ class SignInController extends GetxController {
     AppNavigation.push(ForgotPasswordScreen());
   }
 
-  void onSignIn() {}
+  // void onSignIn() {AppNavigation.push(SettingsScreen());}
+  void onSignIn() {
+    AppNavigation.push(BasePage());
+
+  }
 
   @override
   void onClose() {

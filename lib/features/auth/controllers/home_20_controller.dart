@@ -1,4 +1,6 @@
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/auth/views/auth_screen.dart';
 
 
 class Home20Controller extends GetxController {
@@ -6,7 +8,9 @@ class Home20Controller extends GetxController {
 
   void selectPlan(PlanType plan) => selectedPlan.value = plan;
 
-  void onNext() {}
+  void onNext() {
+    AppNavigation.push(AuthScreen());
+  }
 
   void onDismiss() {}
 }

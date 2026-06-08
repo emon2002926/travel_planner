@@ -88,8 +88,8 @@ class SettingsScreen extends StatelessWidget {
                   child: Row(
                     children: [
                       ClipOval(
-                        child: Image.network(
-                          'https://i.pravatar.cc/150',
+                        child: Image.asset(
+                          'assets/images/icons/profile_image.png',
                           width: context.w(52),
                           height: context.w(52),
                           fit: BoxFit.cover,
@@ -242,7 +242,7 @@ class _SettingsNavItem extends StatelessWidget {
         padding: EdgeInsets.symmetric(
             horizontal: context.w(14), vertical: context.h(14)),
         decoration: BoxDecoration(
-          color: AppColors.scaffoldBg,
+          color: AppColors.containerBg,
           borderRadius: BorderRadius.circular(context.w(10)),
         ),
         child: Row(

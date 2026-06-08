@@ -1,10 +1,26 @@
+import 'package:get/get_navigation/src/root/parse_route.dart';
 import 'package:get_storage/get_storage.dart';
+
+import '../../features/auth/controllers/account_selection_controller.dart';
 
 class StorageService {
   static final _box = GetStorage();
   static const _tokenKey       = 'access_token';
   static const _refreshTokenKey = 'refresh_token';
   static const _themeModeKey   = 'theme_mode';
+  static const _userRoleKey     = 'user_role';
+
+
+  // User Role
+  static Future<void> saveUserRole(UserRole role) async {
+    await _box.write(_userRoleKey, role.name); // stores 'owner' / 'editor' / 'viewer'
+  }
+
+  static UserRole? get userRole {
+    final value = _box.read<String>(_userRoleKey);
+    if (value == null) return null;
+    return UserRole.values.firstWhereOrNull((r) => r.name == value);
+  }
 
   // Access Token
   static Future<void> saveToken(String accessToken) async {

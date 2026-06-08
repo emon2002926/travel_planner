@@ -2,6 +2,8 @@
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/features/auth/views/home_20_screen.dart';
+
+import '../../../core/util/storage_service.dart';
 enum UserRole { owner, editor, viewer }
 
 class AccountSelectionController extends GetxController {
@@ -9,5 +11,8 @@ class AccountSelectionController extends GetxController {
 
   void selectRole(UserRole role) => selectedRole.value = role;
 
-  void onNext() { AppNavigation.push(Home20Screen());}
+  Future<void> onNext() async {
+    await StorageService.saveUserRole(selectedRole.value);
+    AppNavigation.push(Home20Screen());
+  }
 }
