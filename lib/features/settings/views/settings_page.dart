@@ -163,6 +163,10 @@ class SettingsScreen extends StatelessWidget {
                       label: 'Delete Account',
                       onTap: controller.onDeleteAccount,
                     ),
+                    _SettingsNavItem(
+                      label: 'Log Out',
+                      onTap: controller.logOut,
+                    ),
                   ],
                 ),
                 SizedBox(height: context.h(16)),

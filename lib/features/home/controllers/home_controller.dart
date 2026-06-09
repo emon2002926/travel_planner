@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'package:travel_planner/core/util/app_navigation.dart';
+import '../../auth/controllers/account_selection_controller.dart';
+import '../../trips/views/trip_detail_page.dart';
 import '../models/trip_model.dart';
 
-class HomeController extends GetxController {
-  final Rx<TripRole> role = TripRole.owner.obs;
 
+class HomeController extends GetxController {
   final RxList<TripModel> trips = <TripModel>[].obs;
   final Rxn<TripModel> activeTrip = Rxn<TripModel>();
 
@@ -13,9 +14,11 @@ class HomeController extends GetxController {
   final RxInt offlineDocsCount = 2.obs;
   final RxBool hasNotification = true.obs;
 
-  bool get isOwner => role.value == TripRole.owner;
-  bool get isEditor => role.value == TripRole.editor;
-  bool get isViewer => role.value == TripRole.viewer;
+  final Rx<UserRole> role = UserRole.viewer.obs;
+
+  bool get isOwner => role.value == UserRole.owner;
+  bool get isEditor => role.value == UserRole.editor;
+  bool get isViewer => role.value == UserRole.viewer;
 
   bool get canCreate => isOwner;
   bool get canEdit => isOwner || isEditor;
@@ -34,21 +37,8 @@ class HomeController extends GetxController {
   List<TripModel> get upcomingTrips =>
       trips.where((t) => t.state == TripState.active).toList();
 
-  bool roleAllows(TripRole minRole) {
-    const order = {
-      TripRole.viewer: 0,
-      TripRole.editor: 1,
-      TripRole.owner: 2,
-    };
-    return order[role.value]! >= order[minRole]!;
-  }
-
-  List<TripActionItem> get actions => const [
-    TripActionItem(
-      label: 'New Trip',
-      icon: Icons.flight_takeoff,
-      minRole: TripRole.owner,
-    ),
+  List<TripActionItem> get ownerActionList => const [
+    TripActionItem(label: 'New Trip', icon: Icons.flight_takeoff),
     TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined),
     TripActionItem(label: 'Vault', icon: Icons.work_outline),
     TripActionItem(label: 'Converter', icon: Icons.attach_money),
@@ -60,8 +50,11 @@ class HomeController extends GetxController {
     TripActionItem(label: 'Templates', icon: Icons.cases_outlined),
   ];
 
-  List<TripActionItem> get visibleActions =>
-      actions.where((a) => roleAllows(a.minRole)).toList();
+  List<TripActionItem> get otherRoleAction => const [
+    TripActionItem(label: 'Converter', icon: Icons.attach_money),
+    TripActionItem(label: 'Group Chats', icon: Icons.chat_bubble_outline),
+    TripActionItem(label: 'Offline Vault', icon: Icons.work_outline),
+  ];
 
   @override
   void onInit() {
@@ -88,7 +81,16 @@ class HomeController extends GetxController {
     trips.assignAll([
       TripModel(
         id: 'u1',
-        destination: 'New Trip',
+        destination: 'New Trip 1',
+        dateRange: 'Aug 1 - Aug 3',
+        duration: '3 Days',
+        partySize: 'Solo',
+        readyPercent: 10,
+        state: TripState.active,
+      ),
+      TripModel(
+        id: 'u2',
+        destination: 'New Trip 2',
         dateRange: 'Aug 1 - Aug 3',
         duration: '3 Days',
         partySize: 'Solo',
@@ -98,10 +100,7 @@ class HomeController extends GetxController {
     ]);
   }
 
-  void setRole(TripRole value) => role.value = value;
-
   void showNoTrip() => activeTrip.value = null;
-
   void showActiveTrip() => _seedDemoData();
 
   void showCompletedTrip() {
@@ -117,19 +116,12 @@ class HomeController extends GetxController {
     );
   }
 
-  void createTrip() {
-    if (!canCreate) return;
-  }
-
+  void createTrip() {}
   void startPacking() {}
-
   void onActionTap(String label) {}
-
-  void onTripTap(TripModel trip) {}
-
-  void editTrip(TripModel trip) {
-    if (!canEdit) return;
+  void onTripTap(TripModel trip) {
+    AppNavigation.push(TripDetailPage(trip: trip));
   }
-
+  void editTrip(TripModel trip) {}
   void openNotifications() {}
 }

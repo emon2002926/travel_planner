@@ -1,17 +1,17 @@
 
 import 'package:flutter/material.dart';
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/core/util/storage_service.dart';
-
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/screen_size.dart';
 import '../../../core/widgets/buttons/app_button.dart';
 import '../../../core/widgets/text/app_text.dart';
+import '../../auth/controllers/account_selection_controller.dart';
+import '../../trips/views/add_new_trip_page.dart';
 import '../controllers/home_controller.dart';
 import '../models/trip_model.dart';
-
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -20,7 +20,13 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
 
-    print("gshlkjkj: ${StorageService.userRole}");
+
+    if(StorageService.userRole == UserRole.viewer){
+      print("role: Viwer ");
+
+    }
+    else{}
+
     return Obx(() {
       final tc = GetInstance().isRegistered<ThemeController>()
           ? Get.find<ThemeController>()
@@ -221,6 +227,7 @@ class _ActiveTripCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final trip = controller.activeTrip.value!;
+    final isOwner = StorageService.userRole == UserRole.owner;
 
     return Container(
       width: double.infinity,
@@ -234,33 +241,58 @@ class _ActiveTripCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: context.w(12),
-                  vertical: context.h(6),
+              if (isOwner)
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.w(12),
+                    vertical: context.h(6),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(context.w(20)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.cloud_outlined,
+                          size: context.sp(16),
+                          color: AppColors.textOnPrimary),
+                      SizedBox(width: context.w(6)),
+                      AppText(
+                        data: '${trip.weatherTemp}, ${trip.weatherCondition}',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.textOnPrimary,
+                      ),
+                    ],
+                  ),
+                )
+              else
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.w(12),
+                    vertical: context.h(6),
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(context.w(20)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.flight_takeoff,
+                          size: context.sp(14),
+                          color: AppColors.textOnPrimary),
+                      SizedBox(width: context.w(6)),
+                      AppText(
+                        data: 'UPCOMING',
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textOnPrimary,
+                      ),
+                    ],
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(context.w(20)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      Icons.cloud_outlined,
-                      size: context.sp(16),
-                      color: AppColors.textOnPrimary,
-                    ),
-                    SizedBox(width: context.w(6)),
-                    AppText(
-                      data: '${trip.weatherTemp}, ${trip.weatherCondition}',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: AppColors.textOnPrimary,
-                    ),
-                  ],
-                ),
-              ),
               const Spacer(),
               if (controller.canEdit)
                 _EditDot(onTap: () => controller.editTrip(trip)),
@@ -283,11 +315,9 @@ class _ActiveTripCard extends StatelessWidget {
                     SizedBox(height: context.h(8)),
                     Row(
                       children: [
-                        Icon(
-                          Icons.calendar_today_outlined,
-                          size: context.sp(14),
-                          color: AppColors.textOnPrimary.withOpacity(0.85),
-                        ),
+                        Icon(Icons.calendar_today_outlined,
+                            size: context.sp(14),
+                            color: AppColors.textOnPrimary.withOpacity(0.85)),
                         SizedBox(width: context.w(6)),
                         AppText(
                           data: '${trip.dateRange}  |  ${trip.duration}',
@@ -315,9 +345,8 @@ class _ActiveTripCard extends StatelessWidget {
                 _StatItem(value: '${trip.daysLeft}', label: 'DAYS LEFT'),
                 _StatDivider(),
                 _StatItem(
-                  value: '${trip.packedItems}/${trip.totalItems}',
-                  label: 'PACKED',
-                ),
+                    value: '${trip.packedItems}/${trip.totalItems}',
+                    label: 'PACKED'),
                 _StatDivider(),
                 _StatItem(value: '${trip.pendingTasks}', label: 'TASKS'),
               ],
@@ -329,6 +358,51 @@ class _ActiveTripCard extends StatelessWidget {
   }
 }
 
+class _BottomSection extends StatelessWidget {
+  final HomeController controller;
+  const _BottomSection({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    final isOwner = StorageService.userRole == UserRole.owner;
+
+    if (controller.hasNoTrip) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _OfflineVaultRow(controller: controller),
+          SizedBox(height: context.h(16)),
+          _PackingPrompt(controller: controller),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        GestureDetector(
+          onTap: (){
+            AppNavigation.push(AddNewTripPage());
+          },
+          child: AppText(
+            data: isOwner ? 'Upcoming' : 'All Trips',
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        SizedBox(height: context.h(16)),
+        ...controller.upcomingTrips.map(
+              (t) => Padding(
+            padding: EdgeInsets.only(bottom: context.h(12)),
+            child: _UpcomingTripCard(controller: controller, trip: t),
+          ),
+        ),
+        _OfflineVaultRow(controller: controller),
+      ],
+    );
+  }
+}
 class _CompletedTripCard extends StatelessWidget {
   final HomeController controller;
   const _CompletedTripCard({required this.controller});
@@ -541,91 +615,93 @@ class _ActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final items = controller.visibleActions;
+    final isOwner = StorageService.userRole == UserRole.owner;
+    final items = isOwner ? controller.ownerActionList : controller.otherRoleAction;
 
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: items.length,
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 4,
-        childAspectRatio: 0.78,
-      ),
-      itemBuilder: (_, index) {
-        final item = items[index];
-        return GestureDetector(
-          onTap: () => controller.onActionTap(item.label),
-          behavior: HitTestBehavior.opaque,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: context.w(56),
-                height: context.w(56),
-                decoration: BoxDecoration(
-                  color: AppColors.iconBg,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  item.icon as IconData,
-                  size: context.sp(24),
-                  color: AppColors.iconColor,
-                ),
+    Widget buildItem(TripActionItem item) {
+      return GestureDetector(
+        onTap: () => controller.onActionTap(item.label),
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: context.w(56),
+              height: context.w(56),
+              decoration: BoxDecoration(
+                color: AppColors.iconBg,
+                shape: BoxShape.circle,
               ),
-              SizedBox(height: context.h(8)),
-              AppText(
-                data: item.label,
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                textAlign: TextAlign.center,
-                color: AppColors.textPrimary,
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _BottomSection extends StatelessWidget {
-  final HomeController controller;
-  const _BottomSection({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    if (controller.hasNoTrip) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _OfflineVaultRow(controller: controller),
-          SizedBox(height: context.h(16)),
-          _PackingPrompt(controller: controller),
-        ],
+              child: Icon(item.icon, size: context.sp(24), color: AppColors.iconColor),
+            ),
+            SizedBox(height: context.h(8)),
+            AppText(
+              data: item.label,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
+              textAlign: TextAlign.center,
+              color: AppColors.textPrimary,
+            ),
+          ],
+        ),
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        AppText(
-          data: 'Upcoming',
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: AppColors.textPrimary,
-        ),
-        SizedBox(height: context.h(16)),
-        ...controller.upcomingTrips.map(
-              (t) => Padding(
-            padding: EdgeInsets.only(bottom: context.h(12)),
-            child: _UpcomingTripCard(controller: controller, trip: t),
-          ),
-        ),
-        _OfflineVaultRow(controller: controller),
-      ],
+    if (!isOwner) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: items.map(buildItem).toList(),
+      );
+    }
+
+    final itemWidth = (MediaQuery.of(context).size.width - context.w(40)) / 4;
+    return Wrap(
+      runSpacing: context.h(16),
+      children: items
+          .map((item) => SizedBox(width: itemWidth, child: buildItem(item)))
+          .toList(),
     );
   }
 }
+
+// class _BottomSection extends StatelessWidget {
+//   final HomeController controller;
+//   const _BottomSection({required this.controller});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     if (controller.hasNoTrip) {
+//       return Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           _OfflineVaultRow(controller: controller),
+//           SizedBox(height: context.h(16)),
+//           _PackingPrompt(controller: controller),
+//         ],
+//       );
+//     }
+//
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         AppText(
+//           data: 'Upcoming',
+//           fontSize: 22,
+//           fontWeight: FontWeight.w700,
+//           color: AppColors.textPrimary,
+//         ),
+//         SizedBox(height: context.h(16)),
+//         ...controller.upcomingTrips.map(
+//               (t) => Padding(
+//             padding: EdgeInsets.only(bottom: context.h(12)),
+//             child: _UpcomingTripCard(controller: controller, trip: t),
+//           ),
+//         ),
+//         _OfflineVaultRow(controller: controller),
+//       ],
+//     );
+//   }
+// }
 
 class _PackingPrompt extends StatelessWidget {
   final HomeController controller;

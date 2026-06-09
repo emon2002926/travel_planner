@@ -1,4 +1,7 @@
-enum TripRole { owner, editor, viewer }
+import '../../auth/controllers/account_selection_controller.dart';
+
+import 'package:flutter/material.dart';
+import '../../auth/controllers/account_selection_controller.dart';
 
 enum TripState { none, active, completed }
 
@@ -42,12 +45,12 @@ class TripModel {
 
 class TripActionItem {
   final String label;
-  final dynamic icon;
-  final TripRole minRole;
+  final IconData icon;
+  final UserRole minRole;
 
   const TripActionItem({
     required this.label,
     required this.icon,
-    this.minRole = TripRole.viewer,
+    this.minRole = UserRole.viewer,
   });
 }
