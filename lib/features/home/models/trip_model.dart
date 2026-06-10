@@ -47,10 +47,11 @@ class TripActionItem {
   final String label;
   final IconData icon;
   final UserRole minRole;
+  final VoidCallback? onTap;
 
   const TripActionItem({
     required this.label,
     required this.icon,
-    this.minRole = UserRole.viewer,
+    this.minRole = UserRole.viewer,  this.onTap,
   });
 }

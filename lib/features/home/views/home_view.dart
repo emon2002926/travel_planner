@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/core/util/storage_service.dart';
+import 'package:travel_planner/features/home/views/weather_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/screen_size.dart';
@@ -236,123 +237,128 @@ class _ActiveTripCard extends StatelessWidget {
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(context.w(20)),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              if (isOwner)
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(12),
-                    vertical: context.h(6),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(context.w(20)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.cloud_outlined,
-                          size: context.sp(16),
-                          color: AppColors.textOnPrimary),
-                      SizedBox(width: context.w(6)),
-                      AppText(
-                        data: '${trip.weatherTemp}, ${trip.weatherCondition}',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.textOnPrimary,
-                      ),
-                    ],
-                  ),
-                )
-              else
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(12),
-                    vertical: context.h(6),
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(context.w(20)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.flight_takeoff,
-                          size: context.sp(14),
-                          color: AppColors.textOnPrimary),
-                      SizedBox(width: context.w(6)),
-                      AppText(
-                        data: 'UPCOMING',
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textOnPrimary,
-                      ),
-                    ],
-                  ),
-                ),
-              const Spacer(),
-              if (controller.canEdit)
-                _EditDot(onTap: () => controller.editTrip(trip)),
-            ],
-          ),
-          SizedBox(height: context.h(20)),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    AppText(
-                      data: trip.destination,
-                      fontSize: 28,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.textOnPrimary,
+      child: GestureDetector(
+        onTap: (){
+          AppNavigation.push(WeatherPage(),context: context);
+        },
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                if (isOwner)
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.w(12),
+                      vertical: context.h(6),
                     ),
-                    SizedBox(height: context.h(8)),
-                    Row(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(context.w(20)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.calendar_today_outlined,
-                            size: context.sp(14),
-                            color: AppColors.textOnPrimary.withOpacity(0.85)),
+                        Icon(Icons.cloud_outlined,
+                            size: context.sp(16),
+                            color: AppColors.textOnPrimary),
                         SizedBox(width: context.w(6)),
                         AppText(
-                          data: '${trip.dateRange}  |  ${trip.duration}',
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          color: AppColors.textOnPrimary.withOpacity(0.85),
+                          data: '${trip.weatherTemp}, ${trip.weatherCondition}',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.textOnPrimary,
                         ),
                       ],
                     ),
-                  ],
-                ),
-              ),
-              _ReadyRing(percent: trip.readyPercent),
-            ],
-          ),
-          SizedBox(height: context.h(20)),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: context.h(16)),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(context.w(14)),
-            ),
-            child: Row(
-              children: [
-                _StatItem(value: '${trip.daysLeft}', label: 'DAYS LEFT'),
-                _StatDivider(),
-                _StatItem(
-                    value: '${trip.packedItems}/${trip.totalItems}',
-                    label: 'PACKED'),
-                _StatDivider(),
-                _StatItem(value: '${trip.pendingTasks}', label: 'TASKS'),
+                  )
+                else
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: context.w(12),
+                      vertical: context.h(6),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(context.w(20)),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.flight_takeoff,
+                            size: context.sp(14),
+                            color: AppColors.textOnPrimary),
+                        SizedBox(width: context.w(6)),
+                        AppText(
+                          data: 'UPCOMING',
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textOnPrimary,
+                        ),
+                      ],
+                    ),
+                  ),
+                const Spacer(),
+                if (controller.canEdit)
+                  _EditDot(onTap: () => controller.editTrip(trip)),
               ],
             ),
-          ),
-        ],
+            SizedBox(height: context.h(20)),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppText(
+                        data: trip.destination,
+                        fontSize: 28,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.textOnPrimary,
+                      ),
+                      SizedBox(height: context.h(8)),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today_outlined,
+                              size: context.sp(14),
+                              color: AppColors.textOnPrimary.withOpacity(0.85)),
+                          SizedBox(width: context.w(6)),
+                          AppText(
+                            data: '${trip.dateRange}  |  ${trip.duration}',
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                            color: AppColors.textOnPrimary.withOpacity(0.85),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                _ReadyRing(percent: trip.readyPercent),
+              ],
+            ),
+            SizedBox(height: context.h(20)),
+            Container(
+              padding: EdgeInsets.symmetric(vertical: context.h(16)),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(context.w(14)),
+              ),
+              child: Row(
+                children: [
+                  _StatItem(value: '${trip.daysLeft}', label: 'DAYS LEFT'),
+                  _StatDivider(),
+                  _StatItem(
+                      value: '${trip.packedItems}/${trip.totalItems}',
+                      label: 'PACKED'),
+                  _StatDivider(),
+                  _StatItem(value: '${trip.pendingTasks}', label: 'TASKS'),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -616,11 +622,13 @@ class _ActionsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isOwner = StorageService.userRole == UserRole.owner;
-    final items = isOwner ? controller.ownerActionList : controller.otherRoleAction;
+    final List<TripActionItem> items = isOwner
+        ? controller.ownerActionList(context)
+        : controller.otherRoleAction;
 
     Widget buildItem(TripActionItem item) {
       return GestureDetector(
-        onTap: () => controller.onActionTap(item.label),
+        onTap: item.onTap,
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisSize: MainAxisSize.min,

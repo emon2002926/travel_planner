@@ -18,7 +18,6 @@ import '../widgets/safety_tab.dart';
 import '../widgets/transport_tab.dart';
 
 
-
 class TripDetailPage extends StatelessWidget {
   final TripModel trip;
   const TripDetailPage({super.key, required this.trip});
@@ -51,15 +50,24 @@ class TripDetailPage extends StatelessWidget {
             ),
             Container(height: 1, color: AppColors.inputBorder),
             Expanded(
-              child: SingleChildScrollView(
-                key: ValueKey(controller.currentTab.value),
-                padding: EdgeInsets.fromLTRB(
-                  context.w(16),
-                  context.h(16),
-                  context.w(16),
-                  context.h(120),
-                ),
-                child: _buildTabContent(controller),
+              child: PageView.builder(
+                controller: controller.pageController,
+                itemCount: 10,
+                onPageChanged: (index) {
+                  controller.currentTab.value = index;
+                  controller.scrollTabBarToIndex(index);
+                },
+                itemBuilder: (context, index) {
+                  return SingleChildScrollView(
+                    padding: EdgeInsets.fromLTRB(
+                      context.w(16),
+                      context.h(16),
+                      context.w(16),
+                      context.h(120),
+                    ),
+                    child: _buildTabContent(index, controller),
+                  );
+                },
               ),
             ),
           ],
@@ -68,22 +76,23 @@ class TripDetailPage extends StatelessWidget {
     });
   }
 
-  Widget _buildTabContent(TripDetailController controller) {
-    switch (controller.currentTab.value) {
-      case 0: return OverviewTab(controller: controller);
-      case 1: return PackingTab(controller: controller);
-      case 2: return GiftTab(controller: controller);
-      case 3: return HomePrepTab(controller: controller);
-      case 4: return TransportTab(controller: controller);
-      case 5: return PeopleTab(controller: controller);
-      case 6: return ExpenseTab(controller: controller);
-      case 7: return SafetyTab(controller: controller);
-      case 8: return HotelTab(controller: controller);
-      case 9: return EndTripTab(controller: controller);
+  Widget _buildTabContent(int index, TripDetailController controller) {
+    switch (index) {
+      case 0:  return OverviewTab(controller: controller);
+      case 1:  return PackingTab(controller: controller);
+      case 2:  return GiftTab(controller: controller);
+      case 3:  return HomePrepTab(controller: controller);
+      case 4:  return TransportTab(controller: controller);
+      case 5:  return PeopleTab(controller: controller);
+      case 6:  return ExpenseTab(controller: controller);
+      case 7:  return SafetyTab(controller: controller);
+      case 8:  return HotelTab(controller: controller);
+      case 9:  return EndTripTab(controller: controller);
       default: return OverviewTab(controller: controller);
     }
   }
 }
+
 
 class _HeroSection extends StatelessWidget {
   final TripModel trip;
@@ -144,7 +153,11 @@ class _HeroSection extends StatelessWidget {
                             color: Colors.black.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.arrow_back, color: Colors.white, size: context.sp(20)),
+                          child: Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                            size: context.sp(20),
+                          ),
                         ),
                       ),
                       GestureDetector(
@@ -159,7 +172,11 @@ class _HeroSection extends StatelessWidget {
                                 color: Colors.white.withOpacity(0.9),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(Icons.sticky_note_2_outlined, color: AppColors.textPrimary, size: context.sp(20)),
+                              child: Icon(
+                                Icons.sticky_note_2_outlined,
+                                color: AppColors.textPrimary,
+                                size: context.sp(20),
+                              ),
                             ),
                             Positioned(
                               top: context.h(8),
@@ -167,7 +184,10 @@ class _HeroSection extends StatelessWidget {
                               child: Container(
                                 width: context.w(8),
                                 height: context.w(8),
-                                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                                decoration: const BoxDecoration(
+                                  color: AppColors.primary,
+                                  shape: BoxShape.circle,
+                                ),
                               ),
                             ),
                           ],
@@ -176,7 +196,12 @@ class _HeroSection extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  AppText(data: trip.destination, fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white),
+                  AppText(
+                    data: trip.destination,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                    color: Colors.white,
+                  ),
                   SizedBox(height: context.h(6)),
                   Row(
                     children: [
@@ -187,10 +212,16 @@ class _HeroSection extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                         ),
                       ),
-                      Icon(Icons.wb_sunny_outlined, size: context.sp(16), color: Colors.white.withOpacity(0.9)),
+                      Icon(
+                        Icons.wb_sunny_outlined,
+                        size: context.sp(16),
+                        color: Colors.white.withOpacity(0.9),
+                      ),
                       SizedBox(width: context.w(4)),
                       AppText(
-                        data: trip.weatherTemp.isNotEmpty ? '${trip.weatherTemp.split(' ').first}°' : '72°',
+                        data: trip.weatherTemp.isNotEmpty
+                            ? '${trip.weatherTemp.split(' ').first}°'
+                            : '72°',
                         fontSize: 15,
                         color: Colors.white.withOpacity(0.9),
                       ),
@@ -206,6 +237,8 @@ class _HeroSection extends StatelessWidget {
     );
   }
 }
+
+
 
 class _TabBar extends StatelessWidget {
   final TripDetailController controller;
@@ -234,8 +267,14 @@ class _TabBar extends StatelessWidget {
                 onTap: () => controller.switchTab(i),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  margin: EdgeInsets.symmetric(horizontal: context.w(4), vertical: context.h(8)),
-                  padding: EdgeInsets.symmetric(horizontal: context.w(14), vertical: context.h(6)),
+                  margin: EdgeInsets.symmetric(
+                    horizontal: context.w(4),
+                    vertical: context.h(8),
+                  ),
+                  padding: EdgeInsets.symmetric(
+                    horizontal: context.w(14),
+                    vertical: context.h(6),
+                  ),
                   decoration: BoxDecoration(
                     color: isSelected ? AppColors.scaffoldBg : Colors.transparent,
                     borderRadius: BorderRadius.circular(context.w(20)),

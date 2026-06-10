@@ -26,8 +26,8 @@ class SplashController extends GetxController {
 
       } else {
         // AppNavigation.pushAndClear(OnBoardingScreen());
-        AppNavigation.pushAndClear(AuthScreen());
-        // AppNavigation.pushAndClear(BasePage());
+        // AppNavigation.pushAndClear(AuthScreen());
+        AppNavigation.pushAndClear(BasePage());
       }
     });
   }

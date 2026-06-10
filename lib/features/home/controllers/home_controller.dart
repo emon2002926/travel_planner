@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/settings/views/notification_screen.dart';
+import 'package:travel_planner/features/vault/views/vault_page.dart';
 import '../../auth/controllers/account_selection_controller.dart';
+import '../../dual_clock/views/dual_clock_page.dart';
+import '../../expance/views/expenses_page.dart';
+import '../../notification/views/notification_page.dart';
+import '../../packing_temp/views/packing_templates_page.dart';
+import '../../trips/views/add_new_trip_page.dart';
 import '../../trips/views/trip_detail_page.dart';
 import '../models/trip_model.dart';
+import '../views/currency_page.dart';
+import '../views/visa_checker_page.dart';
 
 
 class HomeController extends GetxController {
@@ -37,17 +46,23 @@ class HomeController extends GetxController {
   List<TripModel> get upcomingTrips =>
       trips.where((t) => t.state == TripState.active).toList();
 
-  List<TripActionItem> get ownerActionList => const [
-    TripActionItem(label: 'New Trip', icon: Icons.flight_takeoff),
-    TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined),
-    TripActionItem(label: 'Vault', icon: Icons.work_outline),
-    TripActionItem(label: 'Converter', icon: Icons.attach_money),
-    TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined),
-    TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined),
-    TripActionItem(label: 'Health', icon: Icons.favorite_border),
-    TripActionItem(label: 'Dual Clock', icon: Icons.schedule),
-    TripActionItem(label: 'Policy', icon: Icons.shield_outlined),
-    TripActionItem(label: 'Templates', icon: Icons.cases_outlined),
+  List<TripActionItem>  ownerActionList (BuildContext context) => [
+    TripActionItem(label: 'New Trip', icon: Icons.flight_takeoff,
+        onTap: (){
+      AppNavigation.push(AddNewTripPage());
+        }
+    ),
+     TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
+      AppNavigation.push(ExpensesPage());
+    }),
+     TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
+     TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
+     TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined),
+     TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
+     TripActionItem(label: 'Health', icon: Icons.favorite_border),
+     TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
+     TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(NotificationScreen(),context: context);}),
+     TripActionItem(label: 'Templates', icon: Icons.cases_outlined,onTap: (){AppNavigation.push(PackingTemplatesPage(),context: context);}),
   ];
 
   List<TripActionItem> get otherRoleAction => const [

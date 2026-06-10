@@ -7,6 +7,7 @@ import '../../home/models/trip_model.dart';
 import '../models/trip_detail_models.dart';
 import '../views/trip_completed_page.dart';
 
+
 class TripDetailController extends GetxController {
   final TripModel trip;
   TripDetailController({required this.trip});
@@ -20,6 +21,11 @@ class TripDetailController extends GetxController {
   final hasAcknowledgedGiftPrompt = false.obs;
 
   final tabScrollController = ScrollController();
+  late final PageController pageController;
+
+  // Approximate rendered width of each tab chip (px).
+  // Tune this value if your tabs are wider/narrower.
+  static const double _tabChipWidth = 90.0;
 
   final RxList<PackingPerson> packingPersons = <PackingPerson>[].obs;
   final RxList<HomePrepCategory> homePrepCategories = <HomePrepCategory>[].obs;
@@ -55,11 +61,47 @@ class TripDetailController extends GetxController {
     return map;
   }
 
+  // ── Lifecycle ─────────────────────────────
+
   @override
   void onInit() {
     super.onInit();
+    pageController = PageController(initialPage: currentTab.value);
     _seedData();
   }
+
+  @override
+  void onClose() {
+    tabScrollController.dispose();
+    pageController.dispose();
+    super.onClose();
+  }
+
+  // ── Tab switching ─────────────────────────
+
+  /// Called by tab bar chip taps. Drives both the indicator and the PageView.
+  void switchTab(int index) {
+    currentTab.value = index;
+    if (pageController.hasClients && pageController.page?.round() != index) {
+      pageController.jumpToPage(index);
+    }
+    scrollTabBarToIndex(index);
+  }
+
+  /// Scrolls the horizontal tab bar so the selected chip stays visible.
+  /// Called by both [switchTab] and the PageView's onPageChanged.
+  void scrollTabBarToIndex(int index) {
+    if (!tabScrollController.hasClients) return;
+    final targetOffset = (index * _tabChipWidth)
+        .clamp(0.0, tabScrollController.position.maxScrollExtent);
+    tabScrollController.animateTo(
+      targetOffset,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOut,
+    );
+  }
+
+  // ── Seed data ─────────────────────────────
 
   void _seedData() {
     overviewTimeline.assignAll([
@@ -171,7 +213,7 @@ class TripDetailController extends GetxController {
     ]);
   }
 
-  void switchTab(int index) => currentTab.value = index;
+  // ── Packing ───────────────────────────────
 
   void togglePackingItem(String personId, String bagId, String itemId) {
     final person = packingPersons.firstWhere((p) => p.id == personId);
@@ -204,6 +246,8 @@ class TripDetailController extends GetxController {
 
   void addPackingPerson(PackingPerson person) => packingPersons.add(person);
 
+  // ── Home Prep ─────────────────────────────
+
   void toggleHomePrepTask(String categoryId, String taskId) {
     final cat = homePrepCategories.firstWhere((c) => c.id == categoryId);
     final task = cat.tasks.firstWhere((t) => t.id == taskId);
@@ -213,11 +257,18 @@ class TripDetailController extends GetxController {
 
   void addHomePrepTask(String categoryId, String label) {
     final cat = homePrepCategories.firstWhere((c) => c.id == categoryId);
-    cat.tasks.add(HomePrepTask(id: DateTime.now().millisecondsSinceEpoch.toString(), label: label));
+    cat.tasks.add(HomePrepTask(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      label: label,
+    ));
     homePrepCategories.refresh();
   }
 
+  // ── Transport ─────────────────────────────
+
   void addTransport(TransportItem item) => transports.add(item);
+
+  // ── People ────────────────────────────────
 
   void addMember(TripMember member) => members.add(member);
 
@@ -226,12 +277,18 @@ class TripDetailController extends GetxController {
     members.removeWhere((m) => m.id == memberId);
   }
 
+  // ── Expenses ──────────────────────────────
+
   void addExpense(ExpenseItem expense) => expenses.add(expense);
+
+  // ── Hotel ─────────────────────────────────
 
   void addHotel(HotelInfo hotel) {
     hotels.assignAll([hotel]);
     showHotelForm.value = false;
   }
+
+  // ── Gifts ─────────────────────────────────
 
   void addGift(GiftItem gift) => gifts.add(gift);
 
@@ -241,23 +298,28 @@ class TripDetailController extends GetxController {
     final idx = gifts.indexWhere((g) => g.id == id);
     if (idx == -1) return;
     final g = gifts[idx];
-    gifts[idx] = GiftItem(id: g.id, name: g.name, price: g.price, forPerson: g.forPerson, location: g.location, direction: g.direction, status: status);
+    gifts[idx] = GiftItem(
+      id: g.id, name: g.name, price: g.price,
+      forPerson: g.forPerson, location: g.location,
+      direction: g.direction, status: status,
+    );
   }
 
-  void updateGift(String id, String name, double price, String forPerson, String location, String direction, String status) {
+  void updateGift(String id, String name, double price, String forPerson,
+      String location, String direction, String status) {
     final idx = gifts.indexWhere((g) => g.id == id);
     if (idx == -1) return;
-    gifts[idx] = GiftItem(id: id, name: name, price: price, forPerson: forPerson, location: location, direction: direction, status: status);
+    gifts[idx] = GiftItem(
+      id: id, name: name, price: price,
+      forPerson: forPerson, location: location,
+      direction: direction, status: status,
+    );
   }
+
+  // ── End Trip ──────────────────────────────
 
   void endTrip() {
     if (!isOwner) return;
     AppNavigation.push(TripCompletedPage(trip: trip));
-  }
-
-  @override
-  void onClose() {
-    tabScrollController.dispose();
-    super.onClose();
   }
 }
