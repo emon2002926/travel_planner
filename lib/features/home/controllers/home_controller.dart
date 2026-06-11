@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/features/settings/views/notification_screen.dart';
 import 'package:travel_planner/features/vault/views/vault_page.dart';
+import '../../../core/util/storage_service.dart';
 import '../../auth/controllers/account_selection_controller.dart';
 import '../../dual_clock/views/dual_clock_page.dart';
 import '../../expance/views/expenses_page.dart';
@@ -12,6 +13,7 @@ import '../../trips/views/add_new_trip_page.dart';
 import '../../trips/views/trip_detail_page.dart';
 import '../models/trip_model.dart';
 import '../views/currency_page.dart';
+import '../views/vaccination_page.dart';
 import '../views/visa_checker_page.dart';
 
 
@@ -57,7 +59,7 @@ class HomeController extends GetxController {
     }),
      TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
      TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
-     TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined),
+     TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
      TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
      TripActionItem(label: 'Health', icon: Icons.favorite_border),
      TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
@@ -71,10 +73,14 @@ class HomeController extends GetxController {
     TripActionItem(label: 'Offline Vault', icon: Icons.work_outline),
   ];
 
+
+
   @override
   void onInit() {
     super.onInit();
-    _seedDemoData();
+    role.value = StorageService.userRole ?? UserRole.viewer;
+
+    // _seedDemoData();
   }
 
   void _seedDemoData() {
@@ -131,7 +137,9 @@ class HomeController extends GetxController {
     );
   }
 
-  void createTrip() {}
+  void createTrip() {
+    AppNavigation.push(AddNewTripPage());
+  }
   void startPacking() {}
   void onActionTap(String label) {}
   void onTripTap(TripModel trip) {

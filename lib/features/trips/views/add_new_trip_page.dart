@@ -10,14 +10,39 @@ import '../../../core/widgets/text/app_text.dart';
 import '../../../core/widgets/text/text_field/app_text_filed.dart';
 import '../controllers/new_trip_controller.dart';
 
-class AddNewTripPage extends StatelessWidget {
+// Changed StatelessWidget → StatefulWidget so the controller is created ONCE
+// in initState and deleted ONCE in dispose. This prevents the keyboard /
+// rebuild cycle from wiping the controller (and all form input) on every frame.
+class AddNewTripPage extends StatefulWidget {
   const AddNewTripPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final controller = Get.put(NewTripController());
+  State<AddNewTripPage> createState() => _AddNewTripPageState();
+}
 
+class _AddNewTripPageState extends State<AddNewTripPage> {
+  late final NewTripController controller;
+
+  @override
+  void initState() {
+    super.initState();
+    // Always start with a fresh controller — but only once per page open.
+    Get.delete<NewTripController>(force: true);
+    controller = Get.put(NewTripController());
+  }
+
+  @override
+  void dispose() {
+    // Clean up when the page is actually removed from the stack.
+    Get.delete<NewTripController>(force: true);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
+      controller.currentStep.value; // track step for button label + progress bar
+
       final tc = GetInstance().isRegistered<ThemeController>()
           ? Get.find<ThemeController>()
           : null;
@@ -53,7 +78,8 @@ class AddNewTripPage extends StatelessWidget {
                   context.h(20),
                 ),
                 child: AppButton(
-                  buttonText: controller.currentStep.value == 2 ? 'Create Trip' : 'Next',
+                  buttonText:
+                  controller.currentStep.value == 2 ? 'Create Trip' : 'Next',
                   onPressed: controller.next,
                   borderRadius: 30,
                   buttonHeight: 56,
@@ -445,6 +471,7 @@ class _Step3 extends StatelessWidget {
           );
         }),
         SizedBox(height: context.h(24)),
+        // Read-only budget summary from Step 2
         AppTextField(
           controller: controller.budgetController,
           hintText: 'e.g. \$240',
@@ -467,9 +494,13 @@ Widget _checkGrid(
     rows.add(
       Row(
         children: [
-          Expanded(child: _checkItem(context, items[i], selected.contains(items[i]), onToggle)),
+          Expanded(
+              child: _checkItem(
+                  context, items[i], selected.contains(items[i]), onToggle)),
           if (i + 1 < items.length)
-            Expanded(child: _checkItem(context, items[i + 1], selected.contains(items[i + 1]), onToggle)),
+            Expanded(
+                child: _checkItem(context, items[i + 1],
+                    selected.contains(items[i + 1]), onToggle)),
         ],
       ),
     );
@@ -496,7 +527,8 @@ Widget _checkItem(
             color: isChecked ? const Color(0xFF3D4A5A) : Colors.transparent,
             borderRadius: BorderRadius.circular(4),
             border: Border.all(
-              color: isChecked ? const Color(0xFF3D4A5A) : AppColors.inputBorder,
+              color:
+              isChecked ? const Color(0xFF3D4A5A) : AppColors.inputBorder,
             ),
           ),
           child: isChecked
@@ -514,10 +546,14 @@ class _DateSection extends StatelessWidget {
   final String label;
   final Rxn<DateTime> date;
   final VoidCallback onTap;
-  const _DateSection({required this.label, required this.date, required this.onTap});
+  const _DateSection(
+      {required this.label, required this.date, required this.onTap});
 
   String _fmt(DateTime d) {
-    const m = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const m = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
     return '${m[d.month - 1]} ${d.day}';
   }
 
@@ -556,9 +592,11 @@ class _DateSection extends StatelessWidget {
                   ),
                   SizedBox(width: context.w(10)),
                   AppText(
-                    data: d != null ? _fmt(d) : 'Oct 12',
+                    data: d != null ? _fmt(d) : 'Select',
                     fontSize: 14,
-                    color: d != null ? AppColors.textPrimary : AppColors.inputHint,
+                    color: d != null
+                        ? AppColors.textPrimary
+                        : AppColors.inputHint,
                   ),
                 ],
               ),
@@ -591,10 +629,13 @@ class _InsuranceRow extends StatelessWidget {
                 color: value ? AppColors.primary : AppColors.inputBorder,
                 width: 1.5,
               ),
-              color: value ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+              color: value
+                  ? AppColors.primary.withOpacity(0.1)
+                  : Colors.transparent,
             ),
             child: value
-                ? Icon(Icons.check, size: context.sp(14), color: AppColors.primary)
+                ? Icon(Icons.check,
+                size: context.sp(14), color: AppColors.primary)
                 : null,
           ),
           SizedBox(width: context.w(12)),
@@ -628,8 +669,10 @@ class _AiCompanionCard extends StatelessWidget {
           Container(
             width: context.w(44),
             height: context.w(44),
-            decoration: BoxDecoration(color: AppColors.iconBg, shape: BoxShape.circle),
-            child: Icon(Icons.auto_awesome, color: AppColors.primary, size: context.sp(22)),
+            decoration:
+            BoxDecoration(color: AppColors.iconBg, shape: BoxShape.circle),
+            child: Icon(Icons.auto_awesome,
+                color: AppColors.primary, size: context.sp(22)),
           ),
           SizedBox(width: context.w(14)),
           Expanded(
@@ -644,7 +687,8 @@ class _AiCompanionCard extends StatelessWidget {
                 ),
                 SizedBox(height: context.h(4)),
                 AppText(
-                  data: "AI is ready to suggest a packing list based on your destination's weather.",
+                  data:
+                  "AI is ready to suggest a packing list based on your destination's weather.",
                   fontSize: 13,
                   color: AppColors.textSecondary,
                   maxLines: 3,
@@ -669,12 +713,14 @@ class _CurrencyDropdown extends StatelessWidget {
       value: value,
       underline: const SizedBox(),
       dropdownColor: AppColors.surface,
-      icon: Icon(Icons.arrow_drop_down, color: AppColors.textSecondary, size: context.sp(20)),
+      icon: Icon(Icons.arrow_drop_down,
+          color: AppColors.textSecondary, size: context.sp(20)),
       onChanged: onChanged,
       items: ['\$', '€', '£', '¥']
           .map((c) => DropdownMenuItem(
         value: c,
-        child: AppText(data: c, fontSize: 14, color: AppColors.textPrimary),
+        child: AppText(
+            data: c, fontSize: 14, color: AppColors.textPrimary),
       ))
           .toList(),
     );
@@ -779,7 +825,9 @@ class _TripTypeCard extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(context.w(16)),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withOpacity(0.05) : AppColors.surface,
+          color: isSelected
+              ? AppColors.primary.withOpacity(0.05)
+              : AppColors.surface,
           borderRadius: BorderRadius.circular(context.w(16)),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.inputBorder,
@@ -799,7 +847,8 @@ class _TripTypeCard extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
             SizedBox(height: context.h(4)),
-            AppText(data: subtitle, fontSize: 13, color: AppColors.textSecondary),
+            AppText(
+                data: subtitle, fontSize: 13, color: AppColors.textSecondary),
           ],
         ),
       ),

@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/core/util/storage_service.dart';
 import 'package:travel_planner/features/home/views/weather_page.dart';
@@ -13,7 +14,6 @@ import '../../auth/controllers/account_selection_controller.dart';
 import '../../trips/views/add_new_trip_page.dart';
 import '../controllers/home_controller.dart';
 import '../models/trip_model.dart';
-
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
@@ -21,14 +21,18 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
 
-
-    if(StorageService.userRole == UserRole.viewer){
-      print("role: Viwer ");
-
-    }
-    else{}
-
     return Obx(() {
+      // Explicitly read every observable that any child widget depends on.
+      // Child widgets are plain StatelessWidgets so their reads happen outside
+      // any Obx — without these lines here the page would never rebuild when
+      // trips are added, the role loads, or the notification dot changes.
+      controller.activeTrip.value;
+      controller.trips.length;
+      controller.userName.value;
+      controller.hasNotification.value;
+      controller.offlineDocsCount.value;
+      controller.role.value;
+
       final tc = GetInstance().isRegistered<ThemeController>()
           ? Get.find<ThemeController>()
           : null;
@@ -207,9 +211,7 @@ class _CreateTripCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(context.w(30)),
               ),
               child: AppText(
-                data: controller.isViewer
-                    ? 'View only access'
-                    : 'No trip yet',
+                data: controller.isViewer ? 'View only access' : 'No trip yet',
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
                 color: AppColors.textOnPrimary.withOpacity(0.8),
@@ -228,7 +230,8 @@ class _ActiveTripCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final trip = controller.activeTrip.value!;
-    final isOwner = StorageService.userRole == UserRole.owner;
+    final hasWeather =
+        trip.weatherTemp != null && trip.weatherCondition != null;
 
     return Container(
       width: double.infinity,
@@ -238,15 +241,16 @@ class _ActiveTripCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(context.w(20)),
       ),
       child: GestureDetector(
-        onTap: (){
-          AppNavigation.push(WeatherPage(),context: context);
+        onTap: () {
+          AppNavigation.push(WeatherPage(), context: context);
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                if (isOwner)
+                // Show weather chip only when data exists, otherwise UPCOMING badge
+                if (controller.isOwner && hasWeather)
                   Container(
                     padding: EdgeInsets.symmetric(
                       horizontal: context.w(12),
@@ -264,7 +268,8 @@ class _ActiveTripCard extends StatelessWidget {
                             color: AppColors.textOnPrimary),
                         SizedBox(width: context.w(6)),
                         AppText(
-                          data: '${trip.weatherTemp}, ${trip.weatherCondition}',
+                          data:
+                          '${trip.weatherTemp}, ${trip.weatherCondition}',
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: AppColors.textOnPrimary,
@@ -322,13 +327,16 @@ class _ActiveTripCard extends StatelessWidget {
                         children: [
                           Icon(Icons.calendar_today_outlined,
                               size: context.sp(14),
-                              color: AppColors.textOnPrimary.withOpacity(0.85)),
+                              color:
+                              AppColors.textOnPrimary.withOpacity(0.85)),
                           SizedBox(width: context.w(6)),
                           AppText(
-                            data: '${trip.dateRange}  |  ${trip.duration}',
+                            data:
+                            '${trip.dateRange}  |  ${trip.duration}',
                             fontSize: 13,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.textOnPrimary.withOpacity(0.85),
+                            color:
+                            AppColors.textOnPrimary.withOpacity(0.85),
                           ),
                         ],
                       ),
@@ -347,13 +355,16 @@ class _ActiveTripCard extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  _StatItem(value: '${trip.daysLeft}', label: 'DAYS LEFT'),
+                  _StatItem(
+                      value: '${trip.daysLeft ?? 0}', label: 'DAYS LEFT'),
                   _StatDivider(),
                   _StatItem(
-                      value: '${trip.packedItems}/${trip.totalItems}',
+                      value:
+                      '${trip.packedItems ?? 0}/${trip.totalItems ?? 0}',
                       label: 'PACKED'),
                   _StatDivider(),
-                  _StatItem(value: '${trip.pendingTasks}', label: 'TASKS'),
+                  _StatItem(
+                      value: '${trip.pendingTasks ?? 0}', label: 'TASKS'),
                 ],
               ),
             ),
@@ -364,51 +375,56 @@ class _ActiveTripCard extends StatelessWidget {
   }
 }
 
+// _BottomSection wraps its content in Obx so the upcoming list reacts
+// to trips being added without needing the parent page to rebuild.
 class _BottomSection extends StatelessWidget {
   final HomeController controller;
   const _BottomSection({required this.controller});
 
   @override
   Widget build(BuildContext context) {
-    final isOwner = StorageService.userRole == UserRole.owner;
+    return Obx(() {
+      // Track the list and active trip inside this Obx so it rebuilds
+      // independently when _submitTrip adds a new trip.
+      controller.trips.length;
+      controller.activeTrip.value;
 
-    if (controller.hasNoTrip) {
+      if (controller.hasNoTrip) {
+        return _OfflineVaultRow(controller: controller);
+      }
+
+      final upcoming = controller.upcomingTrips;
+
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (controller.hasActiveTrip) ...[
+            _PackingPrompt(controller: controller),
+            SizedBox(height: context.h(24)),
+          ],
+          if (upcoming.isNotEmpty) ...[
+            AppText(
+              data: controller.isOwner ? 'Upcoming' : 'All Trips',
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+            SizedBox(height: context.h(16)),
+            ...upcoming.map(
+                  (t) => Padding(
+                padding: EdgeInsets.only(bottom: context.h(12)),
+                child: _UpcomingTripCard(controller: controller, trip: t),
+              ),
+            ),
+            SizedBox(height: context.h(8)),
+          ],
           _OfflineVaultRow(controller: controller),
-          SizedBox(height: context.h(16)),
-          _PackingPrompt(controller: controller),
         ],
       );
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        GestureDetector(
-          onTap: (){
-            AppNavigation.push(AddNewTripPage());
-          },
-          child: AppText(
-            data: isOwner ? 'Upcoming' : 'All Trips',
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: AppColors.textPrimary,
-          ),
-        ),
-        SizedBox(height: context.h(16)),
-        ...controller.upcomingTrips.map(
-              (t) => Padding(
-            padding: EdgeInsets.only(bottom: context.h(12)),
-            child: _UpcomingTripCard(controller: controller, trip: t),
-          ),
-        ),
-        _OfflineVaultRow(controller: controller),
-      ],
-    );
+    });
   }
 }
+
 class _CompletedTripCard extends StatelessWidget {
   final HomeController controller;
   const _CompletedTripCard({required this.controller});
@@ -621,8 +637,7 @@ class _ActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isOwner = StorageService.userRole == UserRole.owner;
-    final List<TripActionItem> items = isOwner
+    final List<TripActionItem> items = controller.isOwner
         ? controller.ownerActionList(context)
         : controller.otherRoleAction;
 
@@ -640,7 +655,8 @@ class _ActionsGrid extends StatelessWidget {
                 color: AppColors.iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(item.icon, size: context.sp(24), color: AppColors.iconColor),
+              child: Icon(item.icon,
+                  size: context.sp(24), color: AppColors.iconColor),
             ),
             SizedBox(height: context.h(8)),
             AppText(
@@ -655,14 +671,15 @@ class _ActionsGrid extends StatelessWidget {
       );
     }
 
-    if (!isOwner) {
+    if (!controller.isOwner) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: items.map(buildItem).toList(),
       );
     }
 
-    final itemWidth = (MediaQuery.of(context).size.width - context.w(40)) / 4;
+    final itemWidth =
+        (MediaQuery.of(context).size.width - context.w(40)) / 4;
     return Wrap(
       runSpacing: context.h(16),
       children: items
@@ -671,45 +688,6 @@ class _ActionsGrid extends StatelessWidget {
     );
   }
 }
-
-// class _BottomSection extends StatelessWidget {
-//   final HomeController controller;
-//   const _BottomSection({required this.controller});
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     if (controller.hasNoTrip) {
-//       return Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           _OfflineVaultRow(controller: controller),
-//           SizedBox(height: context.h(16)),
-//           _PackingPrompt(controller: controller),
-//         ],
-//       );
-//     }
-//
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         AppText(
-//           data: 'Upcoming',
-//           fontSize: 22,
-//           fontWeight: FontWeight.w700,
-//           color: AppColors.textPrimary,
-//         ),
-//         SizedBox(height: context.h(16)),
-//         ...controller.upcomingTrips.map(
-//               (t) => Padding(
-//             padding: EdgeInsets.only(bottom: context.h(12)),
-//             child: _UpcomingTripCard(controller: controller, trip: t),
-//           ),
-//         ),
-//         _OfflineVaultRow(controller: controller),
-//       ],
-//     );
-//   }
-// }
 
 class _PackingPrompt extends StatelessWidget {
   final HomeController controller;
@@ -763,7 +741,8 @@ class _PackingPrompt extends StatelessWidget {
 class _UpcomingTripCard extends StatelessWidget {
   final HomeController controller;
   final TripModel trip;
-  const _UpcomingTripCard({required this.controller, required this.trip});
+  const _UpcomingTripCard(
+      {required this.controller, required this.trip});
 
   @override
   Widget build(BuildContext context) {
