@@ -4,12 +4,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:travel_planner/core/widgets/buttons/app_button.dart';
 
 import '../../../core/constants/app_colors.dart';
-import '../../../core/themes/theme_controller.dart';
-import '../../../core/widgets/buttons/social_login_buttons.dart';
 import '../../../core/widgets/text/app_text.dart';
 import '../../../core/widgets/text/text_field/app_text_filed.dart';
 import '../controllers/sign_in_controller.dart';
-import '../widgets/auth_shared_widgets.dart';
 
 class SignInForm extends StatelessWidget {
   const SignInForm({super.key});

@@ -77,7 +77,7 @@ class _ImageSection extends StatelessWidget {
         width: double.infinity,
         height: context.heightPercentage(50),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => Container(
+        errorBuilder: (_, _, _) => Container(
           height: context.heightPercentage(50),
           color: AppColors.cardBg,
           child: Icon(

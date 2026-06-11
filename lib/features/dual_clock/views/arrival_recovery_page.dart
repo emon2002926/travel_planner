@@ -41,7 +41,7 @@ class ArrivalRecoveryPage extends StatelessWidget {
                 child: ListView.separated(
                   padding: EdgeInsets.fromLTRB(context.w(16), context.h(16), context.w(16), context.h(32)),
                   itemCount: _tips.length,
-                  separatorBuilder: (_, __) => SizedBox(height: context.h(14)),
+                  separatorBuilder: (_, _) => SizedBox(height: context.h(14)),
                   itemBuilder: (context, i) => _TipCard(tip: _tips[i]),
                 ),
               ),

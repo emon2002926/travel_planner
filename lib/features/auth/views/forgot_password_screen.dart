@@ -10,7 +10,7 @@ import '../controllers/forgot_password_controller.dart';
 import '../widgets/auth_shared_widgets.dart';
 
 class ForgotPasswordScreen extends StatelessWidget {
-  ForgotPasswordScreen({super.key});
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {

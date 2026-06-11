@@ -63,7 +63,7 @@ class _DualClockHeader extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Get.back(),
+            onTap: () {Navigator.pop(context);},
             child: Icon(Icons.arrow_back, color: AppColors.textPrimary, size: context.sp(22)),
           ),
           SizedBox(width: context.w(10)),
@@ -84,7 +84,7 @@ class _FormatToggle extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         _ToggleChip(label: '12-HOUR', selected: controller.is12Hour.value,  onTap: () => controller.is12Hour.value = true),
-        SizedBox(width: context.w(0)),
+        SizedBox(width: context.w(20)),
         _ToggleChip(label: '24-HOUR', selected: !controller.is12Hour.value, onTap: () => controller.is12Hour.value = false),
       ],
     ));

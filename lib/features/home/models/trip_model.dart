@@ -1,7 +1,6 @@
 import '../../auth/controllers/account_selection_controller.dart';
 
 import 'package:flutter/material.dart';
-import '../../auth/controllers/account_selection_controller.dart';
 
 enum TripState { none, active, completed }
 

@@ -223,7 +223,7 @@ class _LocationSharingCard extends StatelessWidget {
               Obx(() => Switch(
                 value: controller.locationSharing.value,
                 onChanged: controller.toggleLocationSharing,
-                activeColor: AppColors.primary,
+                activeThumbColor: AppColors.primary,
               )),
             ],
           ),

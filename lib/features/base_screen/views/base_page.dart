@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/bottom_navigation/custom_bottom_navigation.dart';
 import '../../chat/views/ai_assistant.dart';
-import '../../more/views/more_page.dart';
-import '../../safety/views/safety_page.dart';
 import '../../settings/views/settings_page.dart';
 import '../../trips/views/trips_page.dart';
 import '../controllers/base_controller.dart';

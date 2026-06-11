@@ -92,7 +92,9 @@ class VaultController extends GetxController {
   }
 
   void clearPin() {
-    for (var i = 0; i < pinDigits.length; i++) pinDigits[i] = '';
+    for (var i = 0; i < pinDigits.length; i++) {
+      pinDigits[i] = '';
+    }
     pinDigits.refresh();
   }
 

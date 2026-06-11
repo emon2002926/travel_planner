@@ -43,7 +43,7 @@ class PackingTemplatesPage extends StatelessWidget {
                   return ListView.separated(
                     padding: EdgeInsets.symmetric(horizontal: context.w(16)),
                     itemCount: items.length,
-                    separatorBuilder: (_, __) => SizedBox(height: context.h(14)),
+                    separatorBuilder: (_, _) => SizedBox(height: context.h(14)),
                     itemBuilder: (_, i) => _TemplateCard(template: items[i], controller: controller),
                   );
                 }),

@@ -51,7 +51,7 @@ class FaqsScreen extends StatelessWidget {
                 child: ListView.separated(
                   padding: EdgeInsets.symmetric(horizontal: context.w(24)),
                   itemCount: controller.faqs.length,
-                  separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
+                  separatorBuilder: (_, _) => SizedBox(height: context.h(12)),
                   itemBuilder: (_, index) {
                     final faq = controller.faqs[index];
                     return Obx(

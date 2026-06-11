@@ -37,7 +37,7 @@ class ExpensesPage extends StatelessWidget {
                     vertical: context.h(16),
                   ),
                   itemCount: controller.trips.length,
-                  separatorBuilder: (_, __) => SizedBox(height: context.h(12)),
+                  separatorBuilder: (_, _) => SizedBox(height: context.h(12)),
                   itemBuilder: (context, i) {
                     final item = controller.trips[i];
                     return _TripExpenseCard(

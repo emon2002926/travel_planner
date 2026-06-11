@@ -12,7 +12,7 @@ import '../widgets/auth_shared_widgets.dart';
 
 class EnterOtpScreen extends StatelessWidget {
   final bool isFromSignUp;
-   EnterOtpScreen({super.key, required this.isFromSignUp});
+   const EnterOtpScreen({super.key, required this.isFromSignUp});
 
   @override
   Widget build(BuildContext context) {

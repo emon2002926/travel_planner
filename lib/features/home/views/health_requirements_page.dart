@@ -40,48 +40,47 @@ class HealthRequirementsPage extends StatelessWidget {
           sideButtonIcon: Icons.notifications_outlined,
           onSideButtonPressed: () {},
         ),
-        body: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
+        body: SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    context.w(16), context.h(16),
+                    context.w(16), context.h(32),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _VaccinationSection(controller: controller),
+                      SizedBox(height: context.h(28)),
+                      _MedicalConditionsSection(controller: controller),
+                      SizedBox(height: context.h(28)),
+                      _AllergiesSection(controller: controller),
+                    ],
+                  ),
+                ),
+              ),
+              Padding(
                 padding: EdgeInsets.fromLTRB(
-                  context.w(16), context.h(16),
-                  context.w(16), context.h(32),
+                  context.w(16), context.h(8),
+                  context.w(16), context.h(24),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    _VaccinationSection(controller: controller),
-                    SizedBox(height: context.h(28)),
-                    _MedicalConditionsSection(controller: controller),
-                    SizedBox(height: context.h(28)),
-                    _AllergiesSection(controller: controller),
-                  ],
+                child: AppButton(
+                  buttonText: 'Save',
+                  onPressed: controller.save,
+                  borderRadius: 50,
+                  buttonHeight: 56,
                 ),
               ),
-            ),
-            Padding(
-              padding: EdgeInsets.fromLTRB(
-                context.w(16), context.h(8),
-                context.w(16), context.h(24),
-              ),
-              child: AppButton(
-                buttonText: 'Save',
-                onPressed: controller.save,
-                borderRadius: 50,
-                buttonHeight: 56,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     });
   }
 }
 
-// ─────────────────────────────────────────────
-//  Vaccination Status
-// ─────────────────────────────────────────────
 
 class _VaccinationSection extends StatelessWidget {
   final HealthRequirementsController controller;
@@ -125,9 +124,7 @@ class _VaccinationSection extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Medical Conditions
-// ─────────────────────────────────────────────
+
 
 class _MedicalConditionsSection extends StatelessWidget {
   final HealthRequirementsController controller;
@@ -197,9 +194,7 @@ class _ConditionsGrid extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Allergies
-// ─────────────────────────────────────────────
+
 
 class _AllergiesSection extends StatelessWidget {
   final HealthRequirementsController controller;
@@ -258,9 +253,7 @@ class _AllergiesSection extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Shared: Yes / No radio row
-// ─────────────────────────────────────────────
+
 
 class _YesNoRow extends StatelessWidget {
   final bool value;
@@ -321,9 +314,7 @@ class _RadioOption extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Shared: date picker field
-// ─────────────────────────────────────────────
+
 
 class _DateField extends StatelessWidget {
   final VoidCallback onTap;

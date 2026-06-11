@@ -1,17 +1,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get_storage/get_storage.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
-import 'package:travel_planner/core/util/storage_service.dart';
 import 'package:travel_planner/features/home/views/weather_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/screen_size.dart';
 import '../../../core/widgets/buttons/app_button.dart';
 import '../../../core/widgets/text/app_text.dart';
-import '../../auth/controllers/account_selection_controller.dart';
-import '../../trips/views/add_new_trip_page.dart';
 import '../controllers/home_controller.dart';
 import '../models/trip_model.dart';
 class HomePage extends StatelessWidget {
@@ -231,7 +227,7 @@ class _ActiveTripCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final trip = controller.activeTrip.value!;
     final hasWeather =
-        trip.weatherTemp != null && trip.weatherCondition != null;
+        trip.weatherCondition != null;
 
     return Container(
       width: double.infinity,
