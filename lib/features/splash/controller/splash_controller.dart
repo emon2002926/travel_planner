@@ -5,6 +5,7 @@ import '../../../../core/util/storage_service.dart';
 import 'package:get_storage/get_storage.dart';
 
 import '../../../core/util/app_navigation.dart';
+import '../../auth/views/auth_screen.dart';
 import '../../onboarding/views/onboarding_screen.dart';
 
 class SplashController extends GetxController {
@@ -25,8 +26,8 @@ class SplashController extends GetxController {
 
       } else {
         // AppNavigation.pushAndClear(OnBoardingScreen());
-        // AppNavigation.pushAndClear(AuthScreen());
-        AppNavigation.pushAndClear(BasePage());
+        AppNavigation.pushAndClear(AuthScreen());
+        // AppNavigation.pushAndClear(BasePage());
       }
     });
   }
