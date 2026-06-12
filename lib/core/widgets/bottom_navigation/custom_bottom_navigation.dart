@@ -56,13 +56,13 @@ class CustomBottomNavigationBar extends StatelessWidget {
           'activeIcon': Icons.verified_user,
           'icon': Icons.shield_outlined,
           'label': 'Safety',
-          'index': 2,
+          'index': 3,
         },
         {
           'activeIcon': Icons.more_horiz,
           'icon': Icons.more_horiz,
           'label': 'More',
-          'index': 3,
+          'index':4,
         },
       ];
 

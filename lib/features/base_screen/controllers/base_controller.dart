@@ -12,10 +12,10 @@ class BaseController extends GetxController {
   int lastTapTime = 0;
 
   final homeNavKey     = GlobalKey<NavigatorState>();
-  final workOutNavKey  = GlobalKey<NavigatorState>();
-  final aiCoachNavKey  = GlobalKey<NavigatorState>();
-  final nutritionNavKey = GlobalKey<NavigatorState>();
-  final levelsNavKey   = GlobalKey<NavigatorState>();
+  final tripsNavKey  = GlobalKey<NavigatorState>();
+  final aiAssistantNavKey  = GlobalKey<NavigatorState>();
+  final saftyPageNavKey = GlobalKey<NavigatorState>();
+  final settingsNavKey   = GlobalKey<NavigatorState>();
   final progressNavKey = GlobalKey<NavigatorState>();
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
@@ -24,10 +24,10 @@ class BaseController extends GetxController {
 
   GlobalKey<NavigatorState> keyForIndex(int index) {
     switch (index) {
-      case 1:  return workOutNavKey;
-      case 2:  return aiCoachNavKey;
-      case 3:  return nutritionNavKey;
-      case 4: return levelsNavKey;
+      case 1:  return tripsNavKey;
+      case 2:  return aiAssistantNavKey;
+      case 3:  return saftyPageNavKey;
+      case 4: return settingsNavKey;
       case 5: return progressNavKey;
 
       default: return homeNavKey;

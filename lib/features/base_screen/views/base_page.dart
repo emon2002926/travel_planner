@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/bottom_navigation/custom_bottom_navigation.dart';
 import '../../chat/views/ai_assistant.dart';
+import '../../safety/views/safety_page.dart';
 import '../../settings/views/settings_page.dart';
 import '../../trips/views/trips_page.dart';
 import '../controllers/base_controller.dart';
@@ -19,8 +20,8 @@ class BasePage extends StatelessWidget {
     final screens = [
       HomePage(),
       TripsPage(),
-      AiAssistant(),
-      // SafetyPage(),
+      AssistantPage(),
+      SafetyPage(),
       SettingsScreen(),
     ];
 
@@ -47,22 +48,22 @@ class BasePage extends StatelessWidget {
               [MaterialPageRoute(builder: (_) => screens[0])],
             ),
             Navigator(
-              key: controller.workOutNavKey,
+              key: controller.tripsNavKey,
               onGenerateInitialRoutes: (_, _) =>
               [MaterialPageRoute(builder: (_) => screens[1])],
             ),
             Navigator(
-              key: controller.aiCoachNavKey,
+              key: controller.aiAssistantNavKey,
               onGenerateInitialRoutes: (_, _) =>
               [MaterialPageRoute(builder: (_) => screens[2])],
             ),
             Navigator(
-              key: controller.nutritionNavKey,
+              key: controller.saftyPageNavKey,
               onGenerateInitialRoutes: (_, _) =>
               [MaterialPageRoute(builder: (_) => screens[3])],
             ),
             Navigator(
-              key: controller.levelsNavKey,
+              key: controller.settingsNavKey,
               onGenerateInitialRoutes: (_, _) =>
               [MaterialPageRoute(builder: (_) => screens[4])],
             ),
@@ -74,6 +75,8 @@ class BasePage extends StatelessWidget {
       bottomNavigationBar: Obx(() => CustomBottomNavigationBar(
         currentIndex: controller.currentIndex.value,
         onTabSelected: controller.onTabSelected,
+        onSupportPressed: () => controller.onTabSelected(2),
+
       )),
     ));
   }

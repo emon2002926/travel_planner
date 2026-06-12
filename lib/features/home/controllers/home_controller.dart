@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/features/vault/views/vault_page.dart';
 import '../../../core/util/storage_service.dart';
+import '../../../core/widgets/snakbar/custom_snackbar.dart';
 import '../../auth/controllers/account_selection_controller.dart';
 import '../../dual_clock/views/dual_clock_page.dart';
 import '../../expance/views/expenses_page.dart';
@@ -136,6 +137,35 @@ class HomeController extends GetxController {
       'You walked 87 km, tried 14 new dishes, and visited landmarks. Best day: Sintra.',
     );
   }
+
+  List<TripModel> get allTrips {
+    final active = activeTrip.value;
+    if (active == null) return trips.toList();
+    return [
+      active,
+      ...trips.where((t) => t.id != active.id),
+    ];
+  }
+
+  void duplicateTrip(TripModel trip) {
+    final copy = TripModel(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      destination: trip.destination,
+      dateRange: trip.dateRange,
+      duration: trip.duration,
+      partySize: trip.partySize,
+      readyPercent: trip.readyPercent,
+      daysLeft: trip.daysLeft,
+      packedItems: trip.packedItems,
+      totalItems: trip.totalItems,
+      pendingTasks: trip.pendingTasks,
+      state: TripState.active,
+    );
+    trips.add(copy);
+    CustomSnackBar.success('Trip duplicated');
+  }
+
+
 
   void createTrip() {
     AppNavigation.push(AddNewTripPage());
