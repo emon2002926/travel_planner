@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:travel_planner/core/widgets/snakbar/custom_snackbar.dart';
+import '../../../core/util/app_navigation.dart';
 import '../../../core/widgets/bottom_navigation/custom_bottom_navigation.dart';
 import '../../chat/views/ai_assistant.dart';
 import '../../safety/views/safety_page.dart';
@@ -75,7 +77,10 @@ class BasePage extends StatelessWidget {
       bottomNavigationBar: Obx(() => CustomBottomNavigationBar(
         currentIndex: controller.currentIndex.value,
         onTabSelected: controller.onTabSelected,
-        onSupportPressed: () => controller.onTabSelected(2),
+        // onSupportPressed: () => controller.onTabSelected(2),
+        onSupportPressed: () {
+          AppNavigation.push(AssistantPage());
+         },
 
       )),
     ));

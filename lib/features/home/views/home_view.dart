@@ -8,6 +8,7 @@ import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/screen_size.dart';
 import '../../../core/widgets/buttons/app_button.dart';
 import '../../../core/widgets/text/app_text.dart';
+import '../../settings/views/notification_screen.dart';
 import '../controllers/home_controller.dart';
 import '../models/trip_model.dart';
 class HomePage extends StatelessWidget {
@@ -118,28 +119,31 @@ class _Header extends StatelessWidget {
                 ),
               ],
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(
-                  Icons.notifications_none,
-                  size: context.sp(24),
-                  color: AppColors.textPrimary,
-                ),
-                if (controller.hasNotification.value)
-                  Positioned(
-                    top: context.h(13),
-                    right: context.w(15),
-                    child: Container(
-                      width: context.w(8),
-                      height: context.w(8),
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
-                        shape: BoxShape.circle,
+            child: GestureDetector(
+              onTap: (){AppNavigation.push(NotificationScreen(), context: context);},
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(
+                    Icons.notifications_none,
+                    size: context.sp(24),
+                    color: AppColors.textPrimary,
+                  ),
+                  if (controller.hasNotification.value)
+                    Positioned(
+                      top: context.h(13),
+                      right: context.w(15),
+                      child: Container(
+                        width: context.w(8),
+                        height: context.w(8),
+                        decoration: const BoxDecoration(
+                          color: AppColors.primary,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -231,7 +235,7 @@ class _ActiveTripCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(context.w(20)),
+      padding: EdgeInsets.all(context.w(16)),
       decoration: BoxDecoration(
         color: AppColors.primary,
         borderRadius: BorderRadius.circular(context.w(20)),
@@ -344,7 +348,7 @@ class _ActiveTripCard extends StatelessWidget {
             ),
             SizedBox(height: context.h(20)),
             Container(
-              padding: EdgeInsets.symmetric(vertical: context.h(16)),
+              padding: EdgeInsets.symmetric(vertical: context.h(12)),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(context.w(14)),
@@ -547,7 +551,7 @@ class _ReadyRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = context.w(96);
+    final size = context.w(86);
     return SizedBox(
       width: size,
       height: size,

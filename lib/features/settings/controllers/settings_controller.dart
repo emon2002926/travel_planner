@@ -55,6 +55,6 @@ class SettingsController extends GetxController {
     AppNavigation.push(NotificationScreen());
   }
   void onProfileArrowTap() {
-    // AppNavigation.push(ProfileA());
+    AppNavigation.push(ProfileUpdateScreen());
   }
 }

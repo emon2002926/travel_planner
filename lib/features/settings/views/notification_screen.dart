@@ -31,7 +31,7 @@ class NotificationScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     GestureDetector(
-                      onTap: () => Get.back(),
+                      onTap: () {Navigator.pop(context);},
                       child: Icon(Icons.arrow_back,
                           color: AppColors.textPrimary, size: context.sp(22)),
                     ),

@@ -362,7 +362,7 @@ class _AuthSheet extends StatelessWidget {
                   ),
                 ),
                 GestureDetector(
-                  onTap: () => Get.back(),
+                  onTap: () {Navigator.pop(context);},
                   child: Icon(Icons.close, color: AppColors.textPrimary, size: context.sp(22)),
                 ),
               ],
@@ -580,84 +580,86 @@ class _AddDocSheetState extends State<_AddDocSheet> {
         context.w(20),
         MediaQuery.of(context).viewInsets.bottom + context.h(32),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          AppText(data: 'Add Documents', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-          SizedBox(height: context.h(6)),
-          AppText(data: 'Add your offline documents for future safety.', fontSize: 14, color: AppColors.textSecondary),
-          SizedBox(height: context.h(22)),
-          AppText(data: 'Document Name', fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-          SizedBox(height: context.h(8)),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(color: AppColors.inputBorder),
-              borderRadius: BorderRadius.circular(context.w(12)),
-            ),
-            child: TextField(
-              controller: _nameController,
-              style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'e.g. Passport',
-                hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(15)),
-                contentPadding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          SizedBox(height: context.h(18)),
-          AppText(data: 'Select File', fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
-          SizedBox(height: context.h(8)),
-          GestureDetector(
-            onTap: () => setState(() => _fileName = 'passport_scan.pdf'),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(horizontal: context.w(6), vertical: context.h(10)),
+      child: SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AppText(data: 'Add Documents', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+            SizedBox(height: context.h(6)),
+            AppText(data: 'Add your offline documents for future safety.', fontSize: 14, color: AppColors.textSecondary),
+            SizedBox(height: context.h(22)),
+            AppText(data: 'Document Name', fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            SizedBox(height: context.h(8)),
+            Container(
               decoration: BoxDecoration(
                 border: Border.all(color: AppColors.inputBorder),
                 borderRadius: BorderRadius.circular(context.w(12)),
               ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: context.w(14), vertical: context.h(10)),
-                    decoration: BoxDecoration(
-                      color: AppColors.scaffoldBg,
-                      borderRadius: BorderRadius.circular(context.w(8)),
-                      border: Border.all(color: AppColors.inputBorder),
-                    ),
-                    child: AppText(data: 'Choose your file', fontSize: 14, color: AppColors.textPrimary),
-                  ),
-                  SizedBox(width: context.w(12)),
-                  if (_fileName.isNotEmpty)
-                    Expanded(
-                      child: AppText(data: _fileName, fontSize: 13, color: AppColors.textSecondary),
-                    ),
-                ],
+              child: TextField(
+                controller: _nameController,
+                style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
+                decoration: InputDecoration(
+                  hintText: 'e.g. Passport',
+                  hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(15)),
+                  contentPadding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
+                  border: InputBorder.none,
+                ),
               ),
             ),
-          ),
-          SizedBox(height: context.h(22)),
-          GestureDetector(
-            onTap: () {
-              if (_nameController.text.trim().isNotEmpty) {
-                widget.controller.addDocument(_nameController.text.trim(), VaultDocType.other);
-                Get.back();
-              }
-            },
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: context.h(16)),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(context.w(50)),
+            SizedBox(height: context.h(18)),
+            AppText(data: 'Select File', fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+            SizedBox(height: context.h(8)),
+            GestureDetector(
+              onTap: () => setState(() => _fileName = 'passport_scan.pdf'),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(horizontal: context.w(6), vertical: context.h(10)),
+                decoration: BoxDecoration(
+                  border: Border.all(color: AppColors.inputBorder),
+                  borderRadius: BorderRadius.circular(context.w(12)),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: EdgeInsets.symmetric(horizontal: context.w(14), vertical: context.h(10)),
+                      decoration: BoxDecoration(
+                        color: AppColors.scaffoldBg,
+                        borderRadius: BorderRadius.circular(context.w(8)),
+                        border: Border.all(color: AppColors.inputBorder),
+                      ),
+                      child: AppText(data: 'Choose your file', fontSize: 14, color: AppColors.textPrimary),
+                    ),
+                    SizedBox(width: context.w(12)),
+                    if (_fileName.isNotEmpty)
+                      Expanded(
+                        child: AppText(data: _fileName, fontSize: 13, color: AppColors.textSecondary),
+                      ),
+                  ],
+                ),
               ),
-              alignment: Alignment.center,
-              child: AppText(data: 'Upload', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
             ),
-          ),
-        ],
+            SizedBox(height: context.h(22)),
+            GestureDetector(
+              onTap: () {
+                if (_nameController.text.trim().isNotEmpty) {
+                  widget.controller.addDocument(_nameController.text.trim(), VaultDocType.other);
+                  Get.back();
+                }
+              },
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: context.h(16)),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(context.w(50)),
+                ),
+                alignment: Alignment.center,
+                child: AppText(data: 'Upload', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

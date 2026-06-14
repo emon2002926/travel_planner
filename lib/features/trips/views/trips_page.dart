@@ -10,6 +10,7 @@ import '../../../core/widgets/text/app_text.dart';
 import '../../chat/views/chat_page.dart';
 import '../../home/controllers/home_controller.dart';
 import '../../home/models/trip_model.dart';
+import '../../settings/views/notification_screen.dart';
 import 'add_new_trip_page.dart';
 
 
@@ -86,14 +87,14 @@ class _TopBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Icon(
-              Icons.arrow_back_ios_new,
-              color: AppColors.textPrimary,
-              size: context.sp(22),
-            ),
-          ),
+          // GestureDetector(
+          //   onTap: () => Get.back(),
+          //   child: Icon(
+          //     Icons.arrow_back_ios_new,
+          //     color: AppColors.textPrimary,
+          //     size: context.sp(22),
+          //   ),
+          // ),
           SizedBox(width: context.w(16)),
           Expanded(
             child: AppText(
@@ -119,28 +120,32 @@ class _TopBar extends StatelessWidget {
                   ),
                 ],
               ),
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  Icon(
-                    Icons.notifications_none,
-                    size: context.sp(24),
-                    color: AppColors.textPrimary,
-                  ),
-                  if (controller.hasNotification.value)
-                    Positioned(
-                      top: context.h(13),
-                      right: context.w(15),
-                      child: Container(
-                        width: context.w(8),
-                        height: context.w(8),
-                        decoration: const BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
+              child: GestureDetector(
+                onTap: (){AppNavigation.push(NotificationScreen(), context: context);},
+
+                child: Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Icon(
+                      Icons.notifications_none,
+                      size: context.sp(24),
+                      color: AppColors.textPrimary,
+                    ),
+                    if (controller.hasNotification.value)
+                      Positioned(
+                        top: context.h(13),
+                        right: context.w(15),
+                        child: Container(
+                          width: context.w(8),
+                          height: context.w(8),
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

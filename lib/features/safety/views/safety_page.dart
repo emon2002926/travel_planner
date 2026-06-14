@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/widgets/buttons/app_button.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/util/screen_size.dart';
 import '../../../../core/widgets/text/app_text.dart';
 import '../../../core/themes/theme_controller.dart';
+import '../../../core/util/app_navigation.dart';
+import '../../settings/views/notification_screen.dart';
 import '../controllers/safety_controller.dart';
 
 class SafetyPage extends StatelessWidget {
@@ -64,14 +67,14 @@ class _SafetyHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
         children: [
-          GestureDetector(
-            onTap: () => Get.back(),
-            child: Icon(Icons.arrow_back, color: AppColors.textPrimary, size: context.sp(22)),
-          ),
-          SizedBox(width: context.w(10)),
+
+
+          SizedBox(width: context.w(32)),
           Expanded(
-            child: AppText(data: 'Safety', fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+            child: AppText(data: 'Safety', fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
           ),
           Container(
             width: context.w(44),
@@ -81,20 +84,24 @@ class _SafetyHeader extends StatelessWidget {
               shape: BoxShape.circle,
               border: Border.all(color: AppColors.inputBorder),
             ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: context.sp(22)),
-                Positioned(
-                  top: context.h(10),
-                  right: context.w(10),
-                  child: Container(
-                    width: context.w(7),
-                    height: context.w(7),
-                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+            child: GestureDetector(
+              onTap: (){AppNavigation.push(NotificationScreen(), context: context);},
+
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: context.sp(22)),
+                  Positioned(
+                    top: context.h(10),
+                    right: context.w(10),
+                    child: Container(
+                      width: context.w(7),
+                      height: context.w(7),
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
@@ -103,9 +110,7 @@ class _SafetyHeader extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Emergency Mode Banner
-// ─────────────────────────────────────────────
+
 
 class _EmergencyModeBanner extends StatelessWidget {
   final SafetyController controller;
@@ -174,9 +179,7 @@ class _EmergencyModeBanner extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Location Sharing Card
-// ─────────────────────────────────────────────
+
 
 class _LocationSharingCard extends StatelessWidget {
   final SafetyController controller;
@@ -239,19 +242,9 @@ class _LocationSharingCard extends StatelessWidget {
             )).toList(),
           )),
           SizedBox(height: context.h(4)),
-          GestureDetector(
-            onTap: controller.sendLocation,
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: context.h(15)),
-              decoration: BoxDecoration(
-                color: AppColors.primary,
-                borderRadius: BorderRadius.circular(context.w(50)),
-              ),
-              alignment: Alignment.center,
-              child: AppText(data: 'Send', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
-            ),
-          ),
+          AppButton(buttonText: "Send",borderRadius: 25, onPressed: (){
+            controller.sendLocation();
+          }),
         ],
       ),
     );
@@ -320,9 +313,6 @@ class _ContactRow extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Local Emergency Info
-// ─────────────────────────────────────────────
 
 class _LocalEmergencySection extends StatelessWidget {
   final SafetyController controller;
@@ -405,9 +395,7 @@ class _EmergencyCard extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Deactivate Emergency Mode button
-// ─────────────────────────────────────────────
+
 
 class _DeactivateButton extends StatelessWidget {
   final SafetyController controller;

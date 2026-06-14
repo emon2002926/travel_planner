@@ -29,19 +29,14 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: context.h(16)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    GestureDetector(
-                      onTap: () => Get.back(),
-                      child: Icon(Icons.arrow_back,
-                          color: AppColors.textPrimary, size: context.sp(22)),
-                    ),
+                    SizedBox(width: context.w(32)),
                     AppText(
-                      data: 'Home',
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
+                      data: 'More',
+                      fontSize: 22,
+                      fontWeight: FontWeight.w800,
                       color: AppColors.textPrimary,
                     ),
                     GestureDetector(

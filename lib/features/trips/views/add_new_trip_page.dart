@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
@@ -8,6 +9,7 @@ import '../../../core/util/screen_size.dart';
 import '../../../core/widgets/buttons/app_button.dart';
 import '../../../core/widgets/text/app_text.dart';
 import '../../../core/widgets/text/text_field/app_text_filed.dart';
+import '../../settings/views/notification_screen.dart';
 import '../controllers/new_trip_controller.dart';
 
 // Changed StatelessWidget → StatefulWidget so the controller is created ONCE
@@ -26,14 +28,12 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
   @override
   void initState() {
     super.initState();
-    // Always start with a fresh controller — but only once per page open.
     Get.delete<NewTripController>(force: true);
     controller = Get.put(NewTripController());
   }
 
   @override
   void dispose() {
-    // Clean up when the page is actually removed from the stack.
     Get.delete<NewTripController>(force: true);
     super.dispose();
   }
@@ -41,7 +41,7 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      controller.currentStep.value; // track step for button label + progress bar
+      controller.currentStep.value;
 
       final tc = GetInstance().isRegistered<ThemeController>()
           ? Get.find<ThemeController>()
@@ -70,27 +70,50 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
             ),
             SafeArea(
               top: false,
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(
-                  context.w(20),
-                  0,
-                  context.w(20),
-                  context.h(20),
-                ),
-                child: AppButton(
-                  buttonText:
-                  controller.currentStep.value == 2 ? 'Create Trip' : 'Next',
-                  onPressed: controller.next,
-                  borderRadius: 30,
-                  buttonHeight: 56,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
+              child: _buildBottomBar(context, controller),
             ),
           ],
         ),
       );
     });
+  }
+
+  // Skip (outline) + Next/Create (filled) — on every step.
+  Widget _buildBottomBar(BuildContext context, NewTripController controller) {
+    return Padding(
+      padding: EdgeInsets.fromLTRB(
+        context.w(20),
+        context.h(8),
+        context.w(20),
+        context.h(20),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: AppButton(
+              buttonText: 'Skip',
+              onPressed: controller.skip,
+              fillColor: Colors.transparent,
+              textColor: AppColors.primary,
+              borderColor: AppColors.primary,
+              borderRadius: 30,
+              buttonHeight: 56,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          SizedBox(width: context.w(12)),
+          Expanded(
+            child: AppButton(
+              buttonText: controller.primaryButtonText,
+              onPressed: controller.next,
+              borderRadius: 30,
+              buttonHeight: 56,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildTopBar(BuildContext context, NewTripController controller) {
@@ -137,10 +160,15 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
                     ),
                   ],
                 ),
-                child: Icon(
-                  Icons.notifications_outlined,
-                  size: context.sp(20),
-                  color: AppColors.textPrimary,
+                child: GestureDetector(
+                  onTap: () {
+                    AppNavigation.push(NotificationScreen(), context: context);
+                  },
+                  child: Icon(
+                    Icons.notifications_outlined,
+                    size: context.sp(20),
+                    color: AppColors.textPrimary,
+                  ),
                 ),
               ),
             ],
@@ -149,11 +177,11 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: context.w(20)),
           child: Row(
-            children: List.generate(3, (i) {
+            children: List.generate(4, (i) {
               return Expanded(
                 child: Container(
                   height: context.h(4),
-                  margin: EdgeInsets.only(right: i < 2 ? context.w(8) : 0),
+                  margin: EdgeInsets.only(right: i < 3 ? context.w(8) : 0),
                   decoration: BoxDecoration(
                     color: i <= controller.currentStep.value
                         ? AppColors.primary
@@ -176,8 +204,10 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
         return _Step1(controller: controller);
       case 1:
         return _Step2(controller: controller);
+      case 2:
+        return _Step3Transport(controller: controller);
       default:
-        return _Step3(controller: controller);
+        return _Step4Type(controller: controller);
     }
   }
 }
@@ -379,9 +409,314 @@ class _Step2 extends StatelessWidget {
   }
 }
 
-class _Step3 extends StatelessWidget {
+// ---------------------------------------------------------------------------
+// Step 3 — Transport details
+// ---------------------------------------------------------------------------
+
+class _Step3Transport extends StatelessWidget {
   final NewTripController controller;
-  const _Step3({required this.controller});
+  const _Step3Transport({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    const modes = ['Flight', 'Train', 'Bus', 'Car'];
+    const emojis = {
+      'Flight': '✈️',
+      'Train': '🚆',
+      'Bus': '🚌',
+      'Car': '🚗',
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          data: 'Transport details',
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: AppColors.textPrimary,
+        ),
+        SizedBox(height: context.h(6)),
+        AppText(
+          data: 'Add your travel and booking information',
+          fontSize: 14,
+          color: AppColors.textSecondary,
+        ),
+        SizedBox(height: context.h(16)),
+
+        // Segmented Flight / Train / Bus / Car
+        Container(
+          padding: EdgeInsets.all(context.w(6)),
+          decoration: BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.circular(context.w(14)),
+            border: Border.all(color: AppColors.inputBorder),
+          ),
+          child: Obx(() => Row(
+            children: modes.map((m) {
+              final selected = controller.transportMode.value == m;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => controller.setTransportMode(m),
+                  behavior: HitTestBehavior.opaque,
+                  child: Container(
+                    padding:
+                    EdgeInsets.symmetric(vertical: context.h(10)),
+                    decoration: BoxDecoration(
+                      color: selected
+                          ? AppColors.primary.withOpacity(0.08)
+                          : Colors.transparent,
+                      borderRadius:
+                      BorderRadius.circular(context.w(10)),
+                      border: selected
+                          ? Border.all(color: AppColors.primary)
+                          : null,
+                    ),
+                    child: Column(
+                      children: [
+                        Text(emojis[m]!,
+                            style: TextStyle(fontSize: context.sp(20))),
+                        SizedBox(height: context.h(4)),
+                        AppText(
+                          data: m,
+                          fontSize: 13,
+                          fontWeight: selected
+                              ? FontWeight.w600
+                              : FontWeight.w400,
+                          color: AppColors.textPrimary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          )),
+        ),
+        SizedBox(height: context.h(20)),
+
+        // One block per leg
+        Obx(() => Column(
+          children: controller.transportLegs
+              .map((leg) => _TransportLegBlock(
+            controller: controller,
+            leg: leg,
+            canRemove: controller.transportLegs.length > 1,
+          ))
+              .toList(),
+        )),
+
+        // Add More <mode>
+        SizedBox(height: context.h(4)),
+        Obx(() => GestureDetector(
+          onTap: controller.addTransportLeg,
+          behavior: HitTestBehavior.opaque,
+          child: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(vertical: context.h(14)),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(context.w(12)),
+              border: Border.all(
+                color: AppColors.primary,
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.add,
+                    size: context.sp(18), color: AppColors.primary),
+                SizedBox(width: context.w(8)),
+                AppText(
+                  data: 'Add More ${controller.transportMode.value}',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.primary,
+                ),
+              ],
+            ),
+          ),
+        )),
+        SizedBox(height: context.h(20)),
+      ],
+    );
+  }
+}
+
+class _TransportLegBlock extends StatelessWidget {
+  final NewTripController controller;
+  final TransportLeg leg;
+  final bool canRemove;
+  const _TransportLegBlock({
+    required this.controller,
+    required this.leg,
+    required this.canRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.h(8)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (canRemove)
+            Align(
+              alignment: Alignment.centerRight,
+              child: GestureDetector(
+                onTap: () => controller.removeTransportLeg(leg),
+                child: Padding(
+                  padding: EdgeInsets.only(bottom: context.h(4)),
+                  child: Icon(Icons.close,
+                      size: context.sp(18), color: AppColors.textSecondary),
+                ),
+              ),
+            ),
+          _Label('Carrier / Airline'),
+          SizedBox(height: context.h(8)),
+          AppTextField(controller: leg.carrier, hintText: 'e.g. Kyoto, Japan'),
+          SizedBox(height: context.h(16)),
+          _Label('Booking Reference'),
+          SizedBox(height: context.h(8)),
+          AppTextField(
+              controller: leg.bookingRef, hintText: 'e.g. Kyoto, Japan'),
+          SizedBox(height: context.h(16)),
+          _Label('Arrival'),
+          SizedBox(height: context.h(8)),
+          Row(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  controller: leg.arrivalPlace,
+                  hintText: 'Enter arrival airport',
+                ),
+              ),
+              SizedBox(width: context.w(10)),
+              Expanded(
+                child: _DateTimeField(
+                  value: leg.arrivalTime,
+                  onTap: () =>
+                      controller.pickLegDateTime(context, leg, true),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: context.h(16)),
+          _Label('Departure'),
+          SizedBox(height: context.h(8)),
+          Row(
+            children: [
+              Expanded(
+                child: AppTextField(
+                  controller: leg.departurePlace,
+                  hintText: 'Enter departure airport',
+                ),
+              ),
+              SizedBox(width: context.w(10)),
+              Expanded(
+                child: _DateTimeField(
+                  value: leg.departureTime,
+                  onTap: () =>
+                      controller.pickLegDateTime(context, leg, false),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: context.h(16)),
+          _Label('Gate Number'),
+          SizedBox(height: context.h(8)),
+          AppTextField(controller: leg.gate, hintText: 'Enter gate number'),
+          SizedBox(height: context.h(16)),
+          _Label('Terminal'),
+          SizedBox(height: context.h(8)),
+          AppTextField(controller: leg.terminal, hintText: 'Enter terminal'),
+          SizedBox(height: context.h(16)),
+          _Label('Seat Number'),
+          SizedBox(height: context.h(8)),
+          AppTextField(controller: leg.seat, hintText: 'Enter seat number'),
+          SizedBox(height: context.h(8)),
+        ],
+      ),
+    );
+  }
+}
+
+class _Label extends StatelessWidget {
+  final String text;
+  const _Label(this.text);
+  @override
+  Widget build(BuildContext context) {
+    return AppText(
+      data: text,
+      fontSize: 16,
+      fontWeight: FontWeight.w600,
+      color: AppColors.textPrimary,
+    );
+  }
+}
+
+class _DateTimeField extends StatelessWidget {
+  final Rxn<DateTime> value;
+  final VoidCallback onTap;
+  const _DateTimeField({required this.value, required this.onTap});
+
+  String _fmt(DateTime d) {
+    const m = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+    final ampm = d.hour < 12 ? 'AM' : 'PM';
+    final min = d.minute.toString().padLeft(2, '0');
+    return '${d.day} ${m[d.month - 1]} • $h:$min $ampm';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final d = value.value;
+      return GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: context.w(12),
+            vertical: context.h(14),
+          ),
+          decoration: BoxDecoration(
+            color: AppColors.inputFill,
+            borderRadius: BorderRadius.circular(context.w(10)),
+            border: Border.all(color: AppColors.inputBorder),
+          ),
+          child: Row(
+            children: [
+              Icon(Icons.calendar_today_outlined,
+                  size: context.sp(16), color: AppColors.textSecondary),
+              SizedBox(width: context.w(8)),
+              Expanded(
+                child: AppText(
+                  data: d != null ? _fmt(d) : '20 May • 08:45 AM',
+                  fontSize: 12,
+                  maxLines: 1,
+                  color: d != null
+                      ? AppColors.textPrimary
+                      : AppColors.inputHint,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Step 4 — Trip type
+// ---------------------------------------------------------------------------
+
+class _Step4Type extends StatelessWidget {
+  final NewTripController controller;
+  const _Step4Type({required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -470,18 +805,15 @@ class _Step3 extends StatelessWidget {
             ],
           );
         }),
-        SizedBox(height: context.h(24)),
-        // Read-only budget summary from Step 2
-        AppTextField(
-          controller: controller.budgetController,
-          hintText: 'e.g. \$240',
-          enabled: false,
-        ),
         SizedBox(height: context.h(20)),
       ],
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Shared widgets (unchanged)
+// ---------------------------------------------------------------------------
 
 Widget _checkGrid(
     BuildContext context,
@@ -592,7 +924,7 @@ class _DateSection extends StatelessWidget {
                   ),
                   SizedBox(width: context.w(10)),
                   AppText(
-                    data: d != null ? _fmt(d) : 'Select',
+                    data: d != null ? _fmt(d) : 'Oct 12',
                     fontSize: 14,
                     color: d != null
                         ? AppColors.textPrimary
