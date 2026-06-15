@@ -401,8 +401,6 @@ class _ActiveTripCard extends StatelessWidget {
   }
 }
 
-// _BottomSection wraps its content in Obx so the upcoming list reacts
-// to trips being added without needing the parent page to rebuild.
 class _BottomSection extends StatelessWidget {
   final HomeController controller;
   const _BottomSection({required this.controller});
@@ -640,9 +638,14 @@ class _ActionsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<TripActionItem> items = controller.isOwner
-        ? controller.ownerActionList(context)
-        : controller.otherRoleAction;
+    final List<TripActionItem> items;
+    if (controller.isOwner) {
+      items = controller.ownerActionList(context);
+    } else if (controller.isEditor) {
+      items = controller.editorActionList(context);
+    } else {
+      items = controller.viwerActionList(context);
+    }
 
     Widget buildItem(TripActionItem item) {
       return GestureDetector(
@@ -658,8 +661,7 @@ class _ActionsGrid extends StatelessWidget {
                 color: AppColors.iconBg,
                 shape: BoxShape.circle,
               ),
-              child: Icon(item.icon,
-                  size: context.sp(24), color: AppColors.iconColor),
+              child: Icon(item.icon, size: context.sp(24), color: AppColors.iconColor),
             ),
             SizedBox(height: context.h(8)),
             AppText(
@@ -674,15 +676,7 @@ class _ActionsGrid extends StatelessWidget {
       );
     }
 
-    if (!controller.isOwner) {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: items.map(buildItem).toList(),
-      );
-    }
-
-    final itemWidth =
-        (MediaQuery.of(context).size.width - context.w(40)) / 4;
+    final itemWidth = (MediaQuery.of(context).size.width - context.w(40)) / 4;
     return Wrap(
       runSpacing: context.h(16),
       children: items
@@ -691,7 +685,6 @@ class _ActionsGrid extends StatelessWidget {
     );
   }
 }
-
 class _PackingPrompt extends StatelessWidget {
   final HomeController controller;
   const _PackingPrompt({required this.controller});

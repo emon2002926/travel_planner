@@ -35,8 +35,6 @@ class HomeController extends GetxController {
   // late final Rx<UserRole?> role;
 
    void printRole(){
-    // print("User_Role_storage : ${StorageService.userRole}");
-    // role = StorageService.userRole!.obs;
      role.value = StorageService.userRole ?? UserRole.viewer;
 
    }
@@ -84,6 +82,39 @@ class HomeController extends GetxController {
      TripActionItem(label: 'Templates', icon: Icons.cases_outlined,onTap: (){AppNavigation.push(PackingTemplatesPage(),context: context);}),
   ];
 
+  List<TripActionItem>  editorActionList (BuildContext context) => [
+
+    TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
+      AppNavigation.push(ExpensesPage());
+    }),
+    TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
+    TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
+    TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
+    TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
+    TripActionItem(label: 'Health', icon: Icons.favorite_border,onTap: (){AppNavigation.push(HealthRequirementsPage(),context: context);}),
+    TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
+    TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(PolicyStoragePage(),context: context);}),
+    TripActionItem(label: 'Templates', icon: Icons.cases_outlined,onTap: (){AppNavigation.push(PackingTemplatesPage(),context: context);}),
+  ];
+
+  List<TripActionItem>  viwerActionList (BuildContext context) => [
+
+    TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
+      AppNavigation.push(ExpensesPage());
+    }),
+    TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
+    TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
+    TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
+    TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
+    TripActionItem(label: 'Health', icon: Icons.favorite_border,onTap: (){AppNavigation.push(HealthRequirementsPage(),context: context);}),
+    TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
+    TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(PolicyStoragePage(),context: context);}),
+  ];
+
+
+
+
+
   List<TripActionItem> get otherRoleAction => const [
     TripActionItem(label: 'Converter', icon: Icons.attach_money),
     TripActionItem(label: 'Group Chats', icon: Icons.chat_bubble_outline),
@@ -103,7 +134,7 @@ class HomeController extends GetxController {
     role.value = StorageService.userRole ?? UserRole.viewer;
     // role = StorageService.userRole.obs?? UserRole.viewer.obs;
 
-    // _seedDemoData();
+    _seedDemoData();
   }
 
   void _seedDemoData() {
