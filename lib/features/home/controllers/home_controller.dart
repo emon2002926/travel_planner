@@ -1,3 +1,5 @@
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
@@ -26,7 +28,21 @@ class HomeController extends GetxController {
   final RxInt offlineDocsCount = 2.obs;
   final RxBool hasNotification = true.obs;
 
+
   final Rx<UserRole> role = UserRole.viewer.obs;
+
+
+  // late final Rx<UserRole?> role;
+
+   void printRole(){
+    // print("User_Role_storage : ${StorageService.userRole}");
+    // role = StorageService.userRole!.obs;
+     role.value = StorageService.userRole ?? UserRole.viewer;
+
+   }
+
+
+
 
   bool get isOwner => role.value == UserRole.owner;
   bool get isEditor => role.value == UserRole.editor;
@@ -72,6 +88,11 @@ class HomeController extends GetxController {
     TripActionItem(label: 'Converter', icon: Icons.attach_money),
     TripActionItem(label: 'Group Chats', icon: Icons.chat_bubble_outline),
     TripActionItem(label: 'Offline Vault', icon: Icons.work_outline),
+    // TripActionItem(label: 'Converter', icon: Icons.attach_money),
+    // TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined),
+    // TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined),
+    // TripActionItem(label: 'Health', icon: Icons.favorite_border),
+    // TripActionItem(label: 'Policy', icon: Icons.shield_outlined),
   ];
 
 
@@ -80,6 +101,7 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     role.value = StorageService.userRole ?? UserRole.viewer;
+    // role = StorageService.userRole.obs?? UserRole.viewer.obs;
 
     // _seedDemoData();
   }
@@ -170,7 +192,9 @@ class HomeController extends GetxController {
   void createTrip() {
     AppNavigation.push(AddNewTripPage());
   }
-  void startPacking() {}
+  void startPacking() {
+    AppNavigation.push(TripDetailPage(trip: activeTrip.value!));
+  }
   void onActionTap(String label) {}
   void onTripTap(TripModel trip) {
     AppNavigation.push(TripDetailPage(trip: trip));

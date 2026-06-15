@@ -13,7 +13,7 @@ class AppBindings {
   AppBindings._();
   static void init() {
     // SignInBinding.dependencies();
-    BaseBinding.dependencies();
+    // BaseBinding.dependencies();
     // HomeBinding.dependencies();
     // NotificationBinding.dependencies();
     // UnitsBinding.dependencies();

@@ -1,7 +1,9 @@
+import 'package:get/get_core/src/get_main.dart';
+import 'package:get/get_instance/src/extension_instance.dart';
 import 'package:get/get_navigation/src/root/parse_route.dart';
 import 'package:get_storage/get_storage.dart';
-
 import '../../features/auth/controllers/account_selection_controller.dart';
+import '../../features/settings/controllers/settings_controller.dart';
 
 class StorageService {
   static final _box = GetStorage();
@@ -51,6 +53,9 @@ class StorageService {
   }
 
   static Future<void> logout() async {
+    Get.delete<AccountSelectionController>(force: true);
+    Get.delete<SettingsController>(force: true);
+
     await _box.erase();
   }
 }

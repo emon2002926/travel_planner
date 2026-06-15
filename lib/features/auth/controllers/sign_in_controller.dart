@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/features/base_screen/views/base_page.dart';
 
+import '../../base_screen/controllers/base_controller.dart';
 import '../views/forgot_password_screen.dart';
 
 class SignInController extends GetxController {
@@ -22,6 +23,8 @@ class SignInController extends GetxController {
   void onSignIn() {
     AppNavigation.push(BasePage());
 
+    Get.delete<BaseController>(force: true); // if it caches tab/session state
+    AppNavigation.pushAndClear(BasePage());
   }
 
   @override

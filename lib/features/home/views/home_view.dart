@@ -2,6 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/core/util/storage_service.dart';
+import 'package:travel_planner/features/chat/views/chat_page.dart';
 import 'package:travel_planner/features/home/views/weather_page.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
@@ -18,11 +20,12 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
 
+    // final role = StorageService.userRole;
+    print("User_Role_storage : ${StorageService.userRole}");
+
+    controller.printRole();
     return Obx(() {
-      // Explicitly read every observable that any child widget depends on.
-      // Child widgets are plain StatelessWidgets so their reads happen outside
-      // any Obx — without these lines here the page would never rebuild when
-      // trips are added, the role loads, or the notification dot changes.
+
       controller.activeTrip.value;
       controller.trips.length;
       controller.userName.value;
@@ -251,31 +254,56 @@ class _ActiveTripCard extends StatelessWidget {
               children: [
                 // Show weather chip only when data exists, otherwise UPCOMING badge
                 if (controller.isOwner && hasWeather)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: context.w(12),
-                      vertical: context.h(6),
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(context.w(20)),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.cloud_outlined,
-                            size: context.sp(16),
-                            color: AppColors.textOnPrimary),
-                        SizedBox(width: context.w(6)),
-                        AppText(
-                          data:
-                          '${trip.weatherTemp}, ${trip.weatherCondition}',
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textOnPrimary,
+                  Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: context.w(12),
+                          vertical: context.h(6),
                         ),
-                      ],
-                    ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(context.w(20)),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.cloud_outlined,
+                                size: context.sp(16),
+                                color: AppColors.textOnPrimary),
+                            SizedBox(width: context.w(6)),
+                            AppText(
+                              data:
+                              // '${trip.weatherTemp}, ${trip.weatherCondition}',
+                              '24° C, SUNNY',
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppColors.textOnPrimary,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: context.w(8)),
+                      GestureDetector(
+                        onTap: (){
+                          AppNavigation.push(ChatPage());
+                        },
+                        child: Container(
+                          width: context.w(30),
+                          height: context.w(30),
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.message,
+                            size: context.sp(18),
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      )
+
+                    ],
                   )
                 else
                   Container(
@@ -303,12 +331,10 @@ class _ActiveTripCard extends StatelessWidget {
                       ],
                     ),
                   ),
-                const Spacer(),
-                if (controller.canEdit)
-                  _EditDot(onTap: () => controller.editTrip(trip)),
+
               ],
             ),
-            SizedBox(height: context.h(20)),
+            SizedBox(height: context.h(10)),
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -520,30 +546,7 @@ class _CompletedTripCard extends StatelessWidget {
   }
 }
 
-class _EditDot extends StatelessWidget {
-  final VoidCallback onTap;
-  const _EditDot({required this.onTap});
 
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: context.w(34),
-        height: context.w(34),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          shape: BoxShape.circle,
-        ),
-        child: Icon(
-          Icons.edit_note,
-          size: context.sp(18),
-          color: AppColors.primary,
-        ),
-      ),
-    );
-  }
-}
 
 class _ReadyRing extends StatelessWidget {
   final int percent;
@@ -551,7 +554,7 @@ class _ReadyRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = context.w(86);
+    final size = context.w(76);
     return SizedBox(
       width: size,
       height: size,
@@ -809,7 +812,24 @@ class _UpcomingTripCard extends StatelessWidget {
             ),
             if (controller.canEdit) ...[
               SizedBox(width: context.w(8)),
-              _EditDot(onTap: () => controller.editTrip(trip)),
+              GestureDetector(
+                onTap: (){
+                  AppNavigation.push(ChatPage());
+                },
+                child: Container(
+                  width: context.w(34),
+                  height: context.w(34),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    Icons.message,
+                    size: context.sp(18),
+                    color: AppColors.primary,
+                  ),
+                ),
+              )
             ],
           ],
         ),

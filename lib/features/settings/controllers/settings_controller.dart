@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:travel_planner/core/util/app_navigation.dart';
 import 'package:travel_planner/features/auth/views/auth_screen.dart';
+import 'package:travel_planner/features/onboarding/views/onboarding_screen.dart';
 import 'package:travel_planner/features/settings/views/change_pin_screen.dart';
 import 'package:travel_planner/features/settings/views/faqs_screen.dart';
 import 'package:travel_planner/features/settings/views/notification_screen.dart';
@@ -8,6 +9,8 @@ import 'package:travel_planner/features/settings/views/terms_conditions_screen.d
 
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/storage_service.dart';
+import '../../auth/controllers/account_selection_controller.dart';
+import '../../base_screen/controllers/base_controller.dart';
 import '../views/change_password_screen.dart';
 import '../views/privacy_policy_screen.dart';
 import '../views/profile_update_screen.dart';
@@ -40,7 +43,7 @@ class SettingsController extends GetxController {
   }
   void logOut() {
     StorageService.logout();
-    AppNavigation.pushAndClear(AuthScreen());
+    AppNavigation.pushAndClear(OnBoardingScreen());
   }
   void onTermsAndConditions() {
     AppNavigation.push(TermsConditionsScreen());

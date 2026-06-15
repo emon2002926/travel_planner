@@ -17,7 +17,7 @@ class BasePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<BaseController>();
+    final controller = Get.put(BaseController()); // fresh each time BasePage builds
 
     final screens = [
       HomePage(),
@@ -77,7 +77,6 @@ class BasePage extends StatelessWidget {
       bottomNavigationBar: Obx(() => CustomBottomNavigationBar(
         currentIndex: controller.currentIndex.value,
         onTabSelected: controller.onTabSelected,
-        // onSupportPressed: () => controller.onTabSelected(2),
         onSupportPressed: () {
           AppNavigation.push(AssistantPage());
          },

@@ -7,7 +7,8 @@ import '../../../core/util/storage_service.dart';
 enum UserRole { owner, editor, viewer }
 
 class AccountSelectionController extends GetxController {
-  final Rx<UserRole> selectedRole = UserRole.owner.obs;
+  late final Rx<UserRole> selectedRole =
+      (StorageService.userRole ?? UserRole.owner).obs;
 
   void selectRole(UserRole role) => selectedRole.value = role;
 
