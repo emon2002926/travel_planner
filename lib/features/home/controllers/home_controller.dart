@@ -1,4 +1,3 @@
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -28,19 +27,42 @@ class HomeController extends GetxController {
   final RxInt offlineDocsCount = 2.obs;
   final RxBool hasNotification = true.obs;
 
-
   final Rx<UserRole> role = UserRole.viewer.obs;
 
+  @override
+  void onInit() {
+    super.onInit();
+    // Load role + seed/clear ONCE when the controller is created.
+    // Doing it here (not in HomePage.build) avoids mutating an observable
+    // while the Obx is building, which caused the
+    // "setState() called during build" crash.
+    printRole();
+  }
 
-  // late final Rx<UserRole?> role;
 
-   void printRole(){
-     role.value = StorageService.userRole ?? UserRole.viewer;
+  void printRole() {
+    role.value = StorageService.userRole ?? UserRole.viewer;
+    if (StorageService.userRole == UserRole.viewer ) {
+      seedDemoData();
+    } else {
+      clearDemoData();
+    }
+  }
 
-   }
+  Future<void> saveRole() async {
+    await StorageService.saveUserRole(UserRole.viewer);
+  }
 
-
-
+  void clearDemoData() {
+    // Only clear if what's loaded is the seed data, so we never wipe
+    // real trips an owner created.
+    final isSeed = activeTrip.value?.id == 't1' ||
+        trips.any((t) => t.id == 'u1' || t.id == 'u2');
+    if (isSeed) {
+      activeTrip.value = null;
+      trips.clear();
+    }
+  }
 
   bool get isOwner => role.value == UserRole.owner;
   bool get isEditor => role.value == UserRole.editor;
@@ -63,81 +85,178 @@ class HomeController extends GetxController {
   List<TripModel> get upcomingTrips =>
       trips.where((t) => t.state == TripState.active).toList();
 
-  List<TripActionItem>  ownerActionList (BuildContext context) => [
-    TripActionItem(label: 'New Trip', icon: Icons.flight_takeoff,
-        onTap: (){
-      AppNavigation.push(AddNewTripPage());
-        }
-    ),
-     TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
-      AppNavigation.push(ExpensesPage());
-    }),
-     TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
-     TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
-     TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
-     TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
-     TripActionItem(label: 'Health', icon: Icons.favorite_border,onTap: (){AppNavigation.push(HealthRequirementsPage(),context: context);}),
-     TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
-     TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(PolicyStoragePage(),context: context);}),
-     TripActionItem(label: 'Templates', icon: Icons.cases_outlined,onTap: (){AppNavigation.push(PackingTemplatesPage(),context: context);}),
+  List<TripActionItem> ownerActionList(BuildContext context) => [
+    TripActionItem(
+        label: 'New Trip',
+        icon: Icons.flight_takeoff,
+        onTap: () {
+          AppNavigation.push(AddNewTripPage());
+        }),
+    TripActionItem(
+        label: 'Expenses',
+        icon: Icons.monetization_on_outlined,
+        onTap: () {
+          AppNavigation.push(ExpensesPage());
+        }),
+    TripActionItem(
+        label: 'Vault',
+        icon: Icons.work_outline,
+        onTap: () {
+          AppNavigation.push(VaultPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Converter',
+        icon: Icons.attach_money,
+        onTap: () {
+          AppNavigation.push(CurrencyPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Vaccine',
+        icon: Icons.vaccines_outlined,
+        onTap: () {
+          AppNavigation.push(VaccinationPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Visa Check',
+        icon: Icons.location_on_outlined,
+        onTap: () {
+          AppNavigation.push(VisaCheckerPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Health',
+        icon: Icons.favorite_border,
+        onTap: () {
+          AppNavigation.push(HealthRequirementsPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Dual Clock',
+        icon: Icons.schedule,
+        onTap: () {
+          AppNavigation.push(DualClockPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Policy',
+        icon: Icons.shield_outlined,
+        onTap: () {
+          AppNavigation.push(PolicyStoragePage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Templates',
+        icon: Icons.cases_outlined,
+        onTap: () {
+          AppNavigation.push(PackingTemplatesPage(), context: context);
+        }),
   ];
 
-  List<TripActionItem>  editorActionList (BuildContext context) => [
-
-    TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
-      AppNavigation.push(ExpensesPage());
-    }),
-    TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
-    TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
-    TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
-    TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
-    TripActionItem(label: 'Health', icon: Icons.favorite_border,onTap: (){AppNavigation.push(HealthRequirementsPage(),context: context);}),
-    TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
-    TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(PolicyStoragePage(),context: context);}),
-    TripActionItem(label: 'Templates', icon: Icons.cases_outlined,onTap: (){AppNavigation.push(PackingTemplatesPage(),context: context);}),
+  List<TripActionItem> editorActionList(BuildContext context) => [
+    TripActionItem(
+        label: 'Expenses',
+        icon: Icons.monetization_on_outlined,
+        onTap: () {
+          AppNavigation.push(ExpensesPage());
+        }),
+    TripActionItem(
+        label: 'Vault',
+        icon: Icons.work_outline,
+        onTap: () {
+          AppNavigation.push(VaultPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Converter',
+        icon: Icons.attach_money,
+        onTap: () {
+          AppNavigation.push(CurrencyPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Vaccine',
+        icon: Icons.vaccines_outlined,
+        onTap: () {
+          AppNavigation.push(VaccinationPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Visa Check',
+        icon: Icons.location_on_outlined,
+        onTap: () {
+          AppNavigation.push(VisaCheckerPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Health',
+        icon: Icons.favorite_border,
+        onTap: () {
+          AppNavigation.push(HealthRequirementsPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Dual Clock',
+        icon: Icons.schedule,
+        onTap: () {
+          AppNavigation.push(DualClockPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Policy',
+        icon: Icons.shield_outlined,
+        onTap: () {
+          AppNavigation.push(PolicyStoragePage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Templates',
+        icon: Icons.cases_outlined,
+        onTap: () {
+          AppNavigation.push(PackingTemplatesPage(), context: context);
+        }),
   ];
 
-  List<TripActionItem>  viwerActionList (BuildContext context) => [
-
-    TripActionItem(label: 'Expenses', icon: Icons.monetization_on_outlined,onTap: (){
-      AppNavigation.push(ExpensesPage());
-    }),
-    TripActionItem(label: 'Vault', icon: Icons.work_outline,onTap: (){AppNavigation.push(VaultPage(),context: context);}),
-    TripActionItem(label: 'Converter', icon: Icons.attach_money,onTap: (){AppNavigation.push(CurrencyPage(),context: context);}),
-    TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined,onTap: (){AppNavigation.push(VaccinationPage(),context: context);}),
-    TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined,onTap: (){AppNavigation.push(VisaCheckerPage(),context: context);}),
-    TripActionItem(label: 'Health', icon: Icons.favorite_border,onTap: (){AppNavigation.push(HealthRequirementsPage(),context: context);}),
-    TripActionItem(label: 'Dual Clock', icon: Icons.schedule,onTap: (){AppNavigation.push(DualClockPage(),context: context);}),
-    TripActionItem(label: 'Policy', icon: Icons.shield_outlined,onTap: (){AppNavigation.push(PolicyStoragePage(),context: context);}),
+  List<TripActionItem> viwerActionList(BuildContext context) => [
+    TripActionItem(
+        label: 'Expenses',
+        icon: Icons.monetization_on_outlined,
+        onTap: () {
+          AppNavigation.push(ExpensesPage());
+        }),
+    TripActionItem(
+        label: 'Vault',
+        icon: Icons.work_outline,
+        onTap: () {
+          AppNavigation.push(VaultPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Converter',
+        icon: Icons.attach_money,
+        onTap: () {
+          AppNavigation.push(CurrencyPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Vaccine',
+        icon: Icons.vaccines_outlined,
+        onTap: () {
+          AppNavigation.push(VaccinationPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Visa Check',
+        icon: Icons.location_on_outlined,
+        onTap: () {
+          AppNavigation.push(VisaCheckerPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Health',
+        icon: Icons.favorite_border,
+        onTap: () {
+          AppNavigation.push(HealthRequirementsPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Dual Clock',
+        icon: Icons.schedule,
+        onTap: () {
+          AppNavigation.push(DualClockPage(), context: context);
+        }),
+    TripActionItem(
+        label: 'Policy',
+        icon: Icons.shield_outlined,
+        onTap: () {
+          AppNavigation.push(PolicyStoragePage(), context: context);
+        }),
   ];
 
-
-
-
-
-  List<TripActionItem> get otherRoleAction => const [
-    TripActionItem(label: 'Converter', icon: Icons.attach_money),
-    TripActionItem(label: 'Group Chats', icon: Icons.chat_bubble_outline),
-    TripActionItem(label: 'Offline Vault', icon: Icons.work_outline),
-    // TripActionItem(label: 'Converter', icon: Icons.attach_money),
-    // TripActionItem(label: 'Vaccine', icon: Icons.vaccines_outlined),
-    // TripActionItem(label: 'Visa Check', icon: Icons.location_on_outlined),
-    // TripActionItem(label: 'Health', icon: Icons.favorite_border),
-    // TripActionItem(label: 'Policy', icon: Icons.shield_outlined),
-  ];
-
-
-
-  @override
-  void onInit() {
-    super.onInit();
-    role.value = StorageService.userRole ?? UserRole.viewer;
-    // role = StorageService.userRole.obs?? UserRole.viewer.obs;
-
-    _seedDemoData();
-  }
-
-  void _seedDemoData() {
+  void seedDemoData() {
     activeTrip.value = TripModel(
       id: 't1',
       destination: 'Tokyo, Japan',
@@ -176,7 +295,7 @@ class HomeController extends GetxController {
   }
 
   void showNoTrip() => activeTrip.value = null;
-  void showActiveTrip() => _seedDemoData();
+  void showActiveTrip() => seedDemoData();
 
   void showCompletedTrip() {
     activeTrip.value = TripModel(
@@ -218,18 +337,21 @@ class HomeController extends GetxController {
     CustomSnackBar.success('Trip duplicated');
   }
 
-
-
   void createTrip() {
     AppNavigation.push(AddNewTripPage());
   }
+
   void startPacking() {
     AppNavigation.push(TripDetailPage(trip: activeTrip.value!));
   }
+
   void onActionTap(String label) {}
+
   void onTripTap(TripModel trip) {
     AppNavigation.push(TripDetailPage(trip: trip));
   }
+
   void editTrip(TripModel trip) {}
+
   void openNotifications() {}
 }

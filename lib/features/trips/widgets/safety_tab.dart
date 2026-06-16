@@ -124,7 +124,20 @@ class _LocationSharingCard extends StatelessWidget {
               AppText(data: 'Location Sharing', fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
               AppText(data: 'Active', fontSize: 12, color: AppColors.textSecondary),
             ])),
-            Switch(value: controller.locationSharing.value, onChanged: controller.canEdit ? (v) => controller.locationSharing.value = v : null, activeThumbColor: AppColors.primary),
+
+
+            Obx(() => Transform.scale(
+              scale: 0.8,
+              child: Switch(
+                value: controller.locationSharing.value,
+                onChanged: controller.canEdit
+                    ? (v) => controller.locationSharing.value = v
+                    : null,
+                activeThumbColor: AppColors.primary,
+              ),
+            ))
+
+
           ]),
           SizedBox(height: context.h(12)),
           Divider(color: AppColors.inputBorder),

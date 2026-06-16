@@ -20,10 +20,10 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.put(HomeController());
 
-    // final role = StorageService.userRole;
     print("User_Role_storage : ${StorageService.userRole}");
+    //
 
-    controller.printRole();
+    // controller.printRole();
     return Obx(() {
 
       controller.activeTrip.value;
@@ -423,7 +423,9 @@ class _BottomSection extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (controller.hasActiveTrip) ...[
+            if (controller.isOwner | controller.isEditor)
             _PackingPrompt(controller: controller),
+
             SizedBox(height: context.h(24)),
           ],
           if (upcoming.isNotEmpty) ...[

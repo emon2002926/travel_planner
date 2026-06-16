@@ -56,7 +56,7 @@ class TripsPage extends StatelessWidget {
                     context.h(120),
                   ),
                   itemCount: allTrips.length,
-                  separatorBuilder: (_, __) =>
+                  separatorBuilder: (_, _) =>
                       SizedBox(height: context.h(14)),
                   itemBuilder: (_, i) => _TripListCard(
                     controller: controller,
@@ -239,9 +239,10 @@ class _TripListCard extends StatelessWidget {
               _DuplicateButton(
                 onTap: () => controller.duplicateTrip(trip),
               ),
-              SizedBox(width: context.w(8)),
-              _EditDot(onTap: () => controller.editTrip(trip)),
+
             ],
+            SizedBox(width: context.w(8)),
+            _EditDot(onTap: () => controller.editTrip(trip)),
           ],
         ),
       ),
@@ -306,7 +307,7 @@ class _EditDot extends StatelessWidget {
           border: Border.all(color: AppColors.inputBorder),
         ),
         child: Icon(
-          Icons.edit_note,
+          Icons.message,
           size: context.sp(20),
           color: AppColors.primary,
         ),

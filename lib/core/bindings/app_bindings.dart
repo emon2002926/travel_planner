@@ -7,7 +7,6 @@
 
 // import '../../features/base_screen/binding/base_binding.dart';
 
-import '../../features/base_screen/binding/base_binding.dart';
 
 class AppBindings {
   AppBindings._();

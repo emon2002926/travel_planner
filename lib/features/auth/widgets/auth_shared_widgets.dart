@@ -114,6 +114,12 @@ class AuthTabItem extends StatelessWidget {
             decoration: BoxDecoration(
               color: isActive ? AppColors.tabSelected : Colors.transparent,
               borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: isActive
+                    ? AppColors.borderColor
+                    : AppColors.tabUnselected,
+                width: 1,
+              ),
               boxShadow: isActive
                   ? [
                 BoxShadow(

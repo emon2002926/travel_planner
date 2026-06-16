@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../../../core/util/screen_size.dart';
 import '../../../core/widgets/text/app_text.dart';
+import '../../chat/views/chat_page.dart';
 import '../../home/models/trip_model.dart';
 import '../controllers/trip_detail_controller.dart';
 import '../widgets/end_trip_tab.dart';
@@ -106,28 +108,30 @@ class _HeroSection extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF0D7377), Color(0xFF1B3E6F), Color(0xFF0A1628)],
-                stops: [0.0, 0.5, 1.0],
-              ),
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withOpacity(0.2),
-                  Colors.black.withOpacity(0.55),
-                ],
-              ),
-            ),
-          ),
+
+          Image.asset('assets/images/tokyo.png', fit: BoxFit.cover),
+          // Container(
+          //   decoration: const BoxDecoration(
+          //     gradient: LinearGradient(
+          //       begin: Alignment.topLeft,
+          //       end: Alignment.bottomRight,
+          //       colors: [Color(0xFF0D7377), Color(0xFF1B3E6F), Color(0xFF0A1628)],
+          //       stops: [0.0, 0.5, 1.0],
+          //     ),
+          //   ),
+          // ),
+          // Container(
+          //   decoration: BoxDecoration(
+          //     gradient: LinearGradient(
+          //       begin: Alignment.topCenter,
+          //       end: Alignment.bottomCenter,
+          //       colors: [
+          //         Colors.black.withOpacity(0.2),
+          //         Colors.black.withOpacity(0.55),
+          //       ],
+          //     ),
+          //   ),
+          // ),
           SafeArea(
             bottom: false,
             child: Padding(
@@ -161,7 +165,9 @@ class _HeroSection extends StatelessWidget {
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {},
+                        onTap: () {
+                          AppNavigation.push(ChatPage(), context: context);
+                        },
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
@@ -173,7 +179,7 @@ class _HeroSection extends StatelessWidget {
                                 shape: BoxShape.circle,
                               ),
                               child: Icon(
-                                Icons.sticky_note_2_outlined,
+                                Icons.message_outlined,
                                 color: AppColors.textPrimary,
                                 size: context.sp(20),
                               ),
@@ -212,19 +218,33 @@ class _HeroSection extends StatelessWidget {
                           color: Colors.white.withOpacity(0.9),
                         ),
                       ),
-                      Icon(
-                        Icons.wb_sunny_outlined,
-                        size: context.sp(16),
-                        color: Colors.white.withOpacity(0.9),
-                      ),
-                      SizedBox(width: context.w(4)),
-                      AppText(
-                        data: trip.weatherTemp.isNotEmpty
-                            ? '${trip.weatherTemp.split(' ').first}°'
-                            : '72°',
-                        fontSize: 15,
-                        color: Colors.white.withOpacity(0.9),
-                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Color(0x4D151515),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.wb_sunny_outlined,
+                                size: context.sp(16),
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                              SizedBox(width: context.w(4)),
+                              AppText(
+                                data: trip.weatherTemp.isNotEmpty
+                                    ? '${trip.weatherTemp.split(' ').first}°'
+                                    : '72°',
+                                fontSize: 15,
+                                color: Colors.white.withOpacity(0.9),
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+
                     ],
                   ),
                   SizedBox(height: context.h(8)),

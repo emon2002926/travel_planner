@@ -4,6 +4,8 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/util/screen_size.dart';
 import '../../../../core/widgets/text/app_text.dart';
 import '../../../core/themes/theme_controller.dart';
+import '../../../core/util/app_navigation.dart';
+import '../../settings/views/notification_screen.dart';
 import '../controllers/vault_controller.dart';
 import 'vault_document_view_page.dart';
 
@@ -63,7 +65,9 @@ class _VaultHeader extends StatelessWidget {
             child: AppText(data: 'Vault', fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
           ),
           GestureDetector(
-            onTap: () {},
+            onTap: () {
+              AppNavigation.push(NotificationScreen(),context: context);
+            },
             child: Container(
               width: context.w(44),
               height: context.w(44),

@@ -1,6 +1,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/settings/views/notification_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/util/screen_size.dart';
 import '../../../../core/widgets/text/app_text.dart';
@@ -76,7 +78,7 @@ class _VisaHeader extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () => Get.back(),
+            onTap: () {Navigator.pop(context);},
             child: Icon(Icons.arrow_back, color: AppColors.textPrimary, size: context.sp(22)),
           ),
           SizedBox(width: context.w(10)),
@@ -88,28 +90,33 @@ class _VisaHeader extends StatelessWidget {
               color: AppColors.textPrimary,
             ),
           ),
-          Container(
-            width: context.w(44),
-            height: context.w(44),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.inputBorder),
-            ),
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: context.sp(22)),
-                Positioned(
-                  top: context.h(10),
-                  right: context.w(10),
-                  child: Container(
-                    width: context.w(7),
-                    height: context.w(7),
-                    decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+          GestureDetector(
+            onTap: () {
+              AppNavigation.push(NotificationScreen(),context: context);
+              },
+            child: Container(
+              width: context.w(44),
+              height: context.w(44),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.inputBorder),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  Icon(Icons.notifications_outlined, color: AppColors.textPrimary, size: context.sp(22)),
+                  Positioned(
+                    top: context.h(10),
+                    right: context.w(10),
+                    child: Container(
+                      width: context.w(7),
+                      height: context.w(7),
+                      decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],

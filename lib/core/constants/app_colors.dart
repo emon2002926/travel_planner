@@ -21,7 +21,7 @@ class AppColors {
 
 
   static Color get scaffoldBg =>
-      _dark ? const Color(0xFF0A0F1E) : const Color(0xFFF2F4F7);
+      _dark ? const Color(0xFF0A0F1E) : const Color(0xFFF2F2F2);
 
   static Color get tabBg =>
       _dark ? Colors.transparent : const Color(0xFFF2F4F7);
@@ -45,7 +45,7 @@ class AppColors {
 
 
   static Color get borderColor =>
-      _dark ? const Color(0xFFD9D9D9) : const Color(0xFF989898);
+      _dark ? const Color(0xFFE7E9EF) : const Color(0xFFE7E9EF);
 
   static Color get textPrimary =>
       _dark ? const Color(0xFFFFFFFF) : const Color(0xFF111827);
@@ -86,5 +86,5 @@ class AppColors {
       _dark ? const Color(0xFF0F1729) : const Color(0xFFFFFFFF);
 
   static Color get tabUnselected =>
-      _dark ? const Color(0xFF1A2540) : const Color(0xFFF2F4F7);
+      _dark ? const Color(0xFF1A2540) :  Colors.white;
 }

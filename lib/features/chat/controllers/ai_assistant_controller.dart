@@ -49,13 +49,25 @@ class AssistantController extends GetxController {
   final inputController = TextEditingController();
   final scrollController = ScrollController();
 
+  // CHANGE 2: focus node so we can detect when the keyboard opens.
+  final inputFocus = FocusNode();
+
+  @override
+  void onInit() {
+    super.onInit();
+    // When the input gains focus (keyboard opens), scroll to the latest
+    // message so it isn't hidden behind the keyboard.
+    inputFocus.addListener(() {
+      if (inputFocus.hasFocus) _scrollToBottom();
+    });
+  }
+
   String get userName => GetInstance().isRegistered<HomeController>()
       ? Get.find<HomeController>().userName.value
       : 'Siam';
 
   bool get hasMessages => messages.isNotEmpty;
   bool get isListening => status.value == AssistantStatus.listening;
-
 
   void sendText() {
     final text = inputController.text.trim();
@@ -82,8 +94,6 @@ class AssistantController extends GetxController {
     ));
     status.value = AssistantStatus.idle;
   }
-
-
 
   void toggleAssistant() {
     aiEnabled.toggle();
@@ -138,8 +148,6 @@ class AssistantController extends GetxController {
     _replyTo(transcript);
   }
 
-
-
   void newChat() {
     _archiveCurrentChat();
     messages.clear();
@@ -168,19 +176,21 @@ class AssistantController extends GetxController {
     );
   }
 
-
-
   void _addMessage(ChatMessage m) {
     messages.add(m);
     _scrollToBottom();
   }
 
+  // CHANGE 3: slightly longer duration so it lands after the keyboard
+  // finishes animating in.
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Guard against 0 OR multiple attached views — .position throws on both.
       if (!scrollController.hasClients) return;
+      if (scrollController.positions.length != 1) return;
       scrollController.animateTo(
         scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     });
@@ -202,6 +212,7 @@ class AssistantController extends GetxController {
 
   @override
   void onClose() {
+    inputFocus.dispose();
     inputController.dispose();
     scrollController.dispose();
     super.onClose();

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:travel_planner/core/widgets/snakbar/custom_snackbar.dart';
 import '../../../core/util/app_navigation.dart';
 import '../../../core/widgets/bottom_navigation/custom_bottom_navigation.dart';
 import '../../chat/views/ai_assistant.dart';

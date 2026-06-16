@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/settings/views/notification_screen.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/util/screen_size.dart';
 import '../../../../core/widgets/text/app_text.dart';
@@ -37,9 +39,10 @@ class VaccinationPage extends StatelessWidget {
           iconColor: AppColors.textPrimary,
           backgroundColor: AppColors.scaffoldBg,
           showBackButton: true,
-          showSideButton: true,
           sideButtonIcon: Icons.notifications_outlined,
-          onSideButtonPressed: () {},
+          onSideButtonPressed: () {
+            AppNavigation.push(NotificationScreen(),context:context);
+          },
         ),
         body: Column(
           children: [

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:get/get.dart';
-import 'package:travel_planner/features/base_screen/views/base_page.dart';
 import '../../../../core/util/storage_service.dart';
 import 'package:get_storage/get_storage.dart';
 
@@ -26,8 +25,8 @@ class SplashController extends GetxController {
 
       } else {
         // AppNavigation.pushAndClear(OnBoardingScreen());
-        // AppNavigation.pushAndClear(AuthScreen());
-        AppNavigation.pushAndClear(BasePage());
+        AppNavigation.pushAndClear(AuthScreen());
+        // AppNavigation.pushAndClear(BasePage());
       }
     });
   }

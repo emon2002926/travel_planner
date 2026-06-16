@@ -277,7 +277,7 @@ class _SettingsToggleItem extends StatelessWidget {
     return Container(
       margin: EdgeInsets.only(bottom: context.h(8)),
       padding: EdgeInsets.symmetric(
-          horizontal: context.w(14), vertical: context.h(10)),
+          horizontal: context.w(14), vertical: context.h(0)),
       decoration: BoxDecoration(
         color: AppColors.scaffoldBg,
         borderRadius: BorderRadius.circular(context.w(10)),
@@ -291,10 +291,13 @@ class _SettingsToggleItem extends StatelessWidget {
             fontWeight: FontWeight.w600,
             color: AppColors.textPrimary,
           ),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeThumbColor: AppColors.primary,
+          Transform.scale(
+            scale: 0.8, // adjust between 0.0 - 1.0
+            child: Switch(
+              value: value,
+              onChanged: onChanged,
+              activeThumbColor: AppColors.primary,
+            ),
           ),
         ],
       ),

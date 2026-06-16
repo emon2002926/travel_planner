@@ -40,6 +40,9 @@ class _AssistantPageState extends State<AssistantPage> {
       tc?.platformBrightness;
 
       return Scaffold(
+        // CHANGE 1: shrink the body so the input bar rides above the keyboard
+        // instead of the keyboard overlapping the messages.
+        resizeToAvoidBottomInset: true,
         backgroundColor: AppColors.scaffoldBg,
         body: SafeArea(
           child: Column(
@@ -214,8 +217,8 @@ class _TopBar extends StatelessWidget {
                         controller.newChat();
                       },
                       child: Container(
-                        padding: EdgeInsets.symmetric(
-                            vertical: context.h(12)),
+                        padding:
+                        EdgeInsets.symmetric(vertical: context.h(12)),
                         decoration: BoxDecoration(
                           borderRadius:
                           BorderRadius.circular(context.w(10)),
@@ -255,65 +258,67 @@ class _WelcomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height: context.h(120)),
-        AppText(
-          data: 'Welcome ${controller.userName},',
-          fontSize: 32,
-          fontWeight: FontWeight.w800,
-          textAlign: TextAlign.center,
-          color: AppColors.textPrimary,
-        ),
-        SizedBox(height: context.h(8)),
-        AppText(
-          data: 'What would you like to remember?',
-          fontSize: 18,
-          fontWeight: FontWeight.w400,
-          textAlign: TextAlign.center,
-          color: AppColors.inputHint,
-        ),
-        SizedBox(height: context.h(80)),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            AppText(
-              data: 'AI Assistant',
-              fontSize: 20,
-              fontWeight: FontWeight.w800,
-              color: AppColors.textPrimary,
-            ),
-            SizedBox(width: context.w(10)),
-            Obx(() => GestureDetector(
-              onTap: controller.toggleAssistant,
-              child: Icon(
-                controller.aiEnabled.value
-                    ? Icons.toggle_on
-                    : Icons.toggle_off_outlined,
-                size: context.sp(38),
-                color: controller.aiEnabled.value
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
-              ),
-            )),
-          ],
-        ),
-        SizedBox(height: context.h(10)),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: context.w(40)),
-          child: AppText(
-            data:
-            'Turn it on and start getting instant help, answers, and smart support anytime.',
-            fontSize: 14,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          SizedBox(height: context.h(120)),
+          AppText(
+            data: 'Welcome ${controller.userName},',
+            fontSize: 32,
+            fontWeight: FontWeight.w800,
             textAlign: TextAlign.center,
-            color: AppColors.textSecondary,
+            color: AppColors.textPrimary,
           ),
-        ),
-        SizedBox(height: context.h(40)),
-        Obx(() => controller.isListening
-            ? _Waveform(height: context.h(90))
-            : SizedBox(height: context.h(90))),
-      ],
+          SizedBox(height: context.h(8)),
+          AppText(
+            data: 'What would you like to remember?',
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            textAlign: TextAlign.center,
+            color: AppColors.inputHint,
+          ),
+          SizedBox(height: context.h(80)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              AppText(
+                data: 'AI Assistant',
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
+                color: AppColors.textPrimary,
+              ),
+              SizedBox(width: context.w(10)),
+              Obx(() => GestureDetector(
+                onTap: controller.toggleAssistant,
+                child: Icon(
+                  controller.aiEnabled.value
+                      ? Icons.toggle_on
+                      : Icons.toggle_off_outlined,
+                  size: context.sp(38),
+                  color: controller.aiEnabled.value
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
+                ),
+              )),
+            ],
+          ),
+          SizedBox(height: context.h(10)),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.w(40)),
+            child: AppText(
+              data:
+              'Turn it on and start getting instant help, answers, and smart support anytime.',
+              fontSize: 14,
+              textAlign: TextAlign.center,
+              color: AppColors.textSecondary,
+            ),
+          ),
+          SizedBox(height: context.h(40)),
+          Obx(() => controller.isListening
+              ? _Waveform(height: context.h(90))
+              : SizedBox(height: context.h(90))),
+        ],
+      ),
     );
   }
 }
@@ -592,6 +597,9 @@ class _InputBar extends StatelessWidget {
                   Expanded(
                     child: TextField(
                       controller: controller.inputController,
+                      // CHANGE 2: attach the focus node so the controller
+                      // scrolls to bottom when the keyboard opens.
+                      focusNode: controller.inputFocus,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => controller.sendText(),
                       style: GoogleFonts.inter(
