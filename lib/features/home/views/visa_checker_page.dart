@@ -9,6 +9,16 @@ import '../../../../core/widgets/text/app_text.dart';
 import '../../../core/themes/theme_controller.dart';
 import '../controllers/visa_checker_controller.dart';
 
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:travel_planner/core/util/app_navigation.dart';
+import 'package:travel_planner/features/settings/views/notification_screen.dart';
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/util/screen_size.dart';
+import '../../../../core/widgets/text/app_text.dart';
+import '../../../core/themes/theme_controller.dart';
+import '../controllers/visa_checker_controller.dart';
+
 class VisaCheckerPage extends StatelessWidget {
   const VisaCheckerPage({super.key});
 
@@ -68,8 +78,6 @@ class VisaCheckerPage extends StatelessWidget {
   }
 }
 
-
-
 class _VisaHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -78,7 +86,9 @@ class _VisaHeader extends StatelessWidget {
       child: Row(
         children: [
           GestureDetector(
-            onTap: () {Navigator.pop(context);},
+            onTap: () {
+              Navigator.pop(context);
+            },
             child: Icon(Icons.arrow_back, color: AppColors.textPrimary, size: context.sp(22)),
           ),
           SizedBox(width: context.w(10)),
@@ -92,8 +102,8 @@ class _VisaHeader extends StatelessWidget {
           ),
           GestureDetector(
             onTap: () {
-              AppNavigation.push(NotificationScreen(),context: context);
-              },
+              AppNavigation.push(NotificationScreen(), context: context);
+            },
             child: Container(
               width: context.w(44),
               height: context.w(44),
@@ -124,7 +134,6 @@ class _VisaHeader extends StatelessWidget {
     );
   }
 }
-
 
 class _IdleBody extends StatelessWidget {
   final VisaCheckerController controller;
@@ -168,12 +177,12 @@ class _IdleBody extends StatelessWidget {
                   SizedBox(width: context.w(12)),
                   Obx(() => controller.hasFile
                       ? Expanded(
-                          child: AppText(
-                            data: controller.fileName.value,
-                            fontSize: 13,
-                            color: AppColors.textSecondary,
-                          ),
-                        )
+                    child: AppText(
+                      data: controller.fileName.value,
+                      fontSize: 13,
+                      color: AppColors.textSecondary,
+                    ),
+                  )
                       : const SizedBox()),
                 ],
               ),
@@ -185,8 +194,6 @@ class _IdleBody extends StatelessWidget {
   }
 }
 
-
-
 class _LoadingBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -197,14 +204,11 @@ class _LoadingBody extends StatelessWidget {
           CircularProgressIndicator(color: AppColors.primary, strokeWidth: 3),
           SizedBox(height: context.h(20)),
           AppText(data: 'Checking your visa...', fontSize: 15, color: AppColors.textSecondary),
-
         ],
       ),
     );
   }
 }
-
-
 
 class _ResultBody extends StatelessWidget {
   final VisaCheckerController controller;
@@ -247,11 +251,6 @@ class _StatusLine extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Checkmark character illustration
-//  Replace with Image.asset('assets/images/visa_check.png') once you provide the asset
-// ─────────────────────────────────────────────
-
 class _CheckmarkCharacter extends StatefulWidget {
   @override
   State<_CheckmarkCharacter> createState() => _CheckmarkCharacterState();
@@ -278,104 +277,17 @@ class _CheckmarkCharacterState extends State<_CheckmarkCharacter>
 
   @override
   Widget build(BuildContext context) {
-    // ── Swap these two lines once asset is ready ──────────────────────────
-    // return ScaleTransition(scale: _scale, child: Image.asset('assets/images/visa_check.png', width: context.w(240)));
     return ScaleTransition(
       scale: _scale,
-      child: SizedBox(
-        width: context.w(220),
-        height: context.w(220),
-        child: CustomPaint(painter: _CheckCharacterPainter()),
+      child: Image.asset(
+        'assets/images/visa_check.png',
+        width: context.w(400),
+        height: context.w(400),
+        fit: BoxFit.contain,
       ),
     );
   }
 }
-
-class _CheckCharacterPainter extends CustomPainter {
-  static const _green = Color(0xFF3DAD5E);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    final strokePaint = Paint()
-      ..color = _green
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = w * 0.065
-      ..strokeCap = StrokeCap.round
-      ..strokeJoin = StrokeJoin.round;
-
-    final fillPaint = Paint()
-      ..color = Colors.white
-      ..style = PaintingStyle.fill;
-
-    // ── Checkmark outline path ────────────────────────────────────────────
-    // left foot → bottom-center → top-right tip
-    final path = Path()
-      ..moveTo(w * 0.10, h * 0.42)
-      ..cubicTo(w * 0.12, h * 0.50, w * 0.20, h * 0.58, w * 0.30, h * 0.72)
-      ..cubicTo(w * 0.36, h * 0.80, w * 0.40, h * 0.86, w * 0.42, h * 0.88)
-      ..cubicTo(w * 0.46, h * 0.92, w * 0.50, h * 0.92, w * 0.54, h * 0.88)
-      ..cubicTo(w * 0.60, h * 0.80, w * 0.70, h * 0.64, w * 0.82, h * 0.42)
-      ..cubicTo(w * 0.88, h * 0.30, w * 0.90, h * 0.18, w * 0.88, h * 0.10)
-      ..cubicTo(w * 0.84, h * 0.04, w * 0.78, h * 0.04, w * 0.74, h * 0.08)
-      ..cubicTo(w * 0.62, h * 0.22, w * 0.52, h * 0.42, w * 0.44, h * 0.60)
-      ..cubicTo(w * 0.38, h * 0.50, w * 0.30, h * 0.40, w * 0.22, h * 0.32)
-      ..cubicTo(w * 0.16, h * 0.26, w * 0.10, h * 0.26, w * 0.08, h * 0.32)
-      ..cubicTo(w * 0.06, h * 0.36, w * 0.08, h * 0.40, w * 0.10, h * 0.42)
-      ..close();
-
-    canvas.drawPath(path, fillPaint);
-    canvas.drawPath(path, strokePaint);
-
-    // ── Shadow ellipse ────────────────────────────────────────────────────
-    final shadowPaint = Paint()
-      ..color = Colors.black.withOpacity(0.12)
-      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
-    canvas.drawOval(
-      Rect.fromCenter(center: Offset(w * 0.44, h * 0.94), width: w * 0.55, height: h * 0.06),
-      shadowPaint,
-    );
-
-    // ── Eyes ──────────────────────────────────────────────────────────────
-    _drawEye(canvas, Offset(w * 0.33, h * 0.62), w * 0.07, strokePaint, fillPaint);
-    _drawEye(canvas, Offset(w * 0.53, h * 0.62), w * 0.07, strokePaint, fillPaint);
-
-    // ── Smile ─────────────────────────────────────────────────────────────
-    final smilePaint = Paint()
-      ..color = _green
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = w * 0.045
-      ..strokeCap = StrokeCap.round;
-
-    final smilePath = Path()
-      ..moveTo(w * 0.30, h * 0.72)
-      ..quadraticBezierTo(w * 0.43, h * 0.80, w * 0.56, h * 0.72);
-    canvas.drawPath(smilePath, smilePaint);
-  }
-
-  void _drawEye(Canvas canvas, Offset center, double r, Paint stroke, Paint fill) {
-    // outer ring
-    canvas.drawCircle(center, r, fill);
-    canvas.drawCircle(center, r, stroke);
-    // inner pupil
-    canvas.drawCircle(center, r * 0.38, Paint()..color = _green..style = PaintingStyle.fill);
-    // highlight
-    canvas.drawCircle(
-      Offset(center.dx - r * 0.22, center.dy - r * 0.22),
-      r * 0.18,
-      Paint()..color = Colors.white..style = PaintingStyle.fill,
-    );
-  }
-
-  @override
-  bool shouldRepaint(_) => false;
-}
-
-// ─────────────────────────────────────────────
-//  Shared primary button
-// ─────────────────────────────────────────────
 
 class _PrimaryButton extends StatelessWidget {
   final String label;

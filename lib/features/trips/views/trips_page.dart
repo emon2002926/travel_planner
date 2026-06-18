@@ -165,7 +165,7 @@ class _TripListCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => controller.onTripTap(trip),
       child: Container(
-        padding: EdgeInsets.all(context.w(12)),
+        padding: EdgeInsets.all(context.w(10)),
         decoration: BoxDecoration(
           color: AppColors.cardBg,
           borderRadius: BorderRadius.circular(context.w(18)),
@@ -175,19 +175,26 @@ class _TripListCard extends StatelessWidget {
           children: [
             // Thumbnail — swap for Image.asset / network once TripModel
             // carries an image.
-            Container(
-              width: context.w(56),
-              height: context.w(56),
-              decoration: BoxDecoration(
-                color: AppColors.iconBg,
-                borderRadius: BorderRadius.circular(context.w(12)),
-              ),
-              child: Icon(
-                Icons.landscape_outlined,
-                color: AppColors.iconColor,
-                size: context.sp(28),
-              ),
+
+            Image.asset(
+              "assets/images/trip_thumbnail.png",
+              width: context.w(66),
+              height: context.w(66),
+              fit: BoxFit.cover,
             ),
+            // Container(
+            //   width: context.w(56),
+            //   height: context.w(56),
+            //   decoration: BoxDecoration(
+            //     color: AppColors.iconBg,
+            //     borderRadius: BorderRadius.circular(context.w(12)),
+            //   ),
+            //   child: Icon(
+            //     Icons.landscape_outlined,
+            //     color: AppColors.iconColor,
+            //     size: context.sp(28),
+            //   ),
+            // ),
             SizedBox(width: context.w(12)),
             Expanded(
               child: Column(

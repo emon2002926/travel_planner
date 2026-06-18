@@ -95,11 +95,10 @@ class _Header extends StatelessWidget {
                 fontWeight: FontWeight.w500,
                 color: AppColors.textSecondary,
               ),
-              SizedBox(height: context.h(4)),
-              AppText(
+               AppText(
                 data: controller.headline,
                 fontSize: 30,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w600,
                 color: AppColors.textPrimary,
               ),
             ],

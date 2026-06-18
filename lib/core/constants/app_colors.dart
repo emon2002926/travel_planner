@@ -62,7 +62,7 @@ class AppColors {
       _dark ? const Color(0xFF152035) : const Color(0xFFFFFFFF);
 
   static Color get inputBorder =>
-      _dark ? const Color(0xFF1F3050) : const Color(0xFFE5E7EB);
+      _dark ? const Color(0xFF1F3050) : const Color(0xFFDFDFDF);
 
   static Color get inputHint =>
       _dark ? const Color(0xFF4A5E80) : const Color(0xFF9CA3AF);
