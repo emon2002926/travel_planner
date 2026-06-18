@@ -394,6 +394,12 @@ class _PackingItemRow extends StatelessWidget {
   }
 }
 
+// ─────────────────────────────────────────────
+//  Body Map View — replace the existing
+//  _BodyMapView, _Bubble and _BodyPainter
+//  classes in packing_tab.dart with these.
+// ─────────────────────────────────────────────
+
 class _BodyMapView extends StatelessWidget {
   final TripDetailController controller;
   const _BodyMapView({required this.controller});
@@ -402,7 +408,11 @@ class _BodyMapView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(context.w(16)),
-      decoration: BoxDecoration(color: AppColors.cardBg, borderRadius: BorderRadius.circular(context.w(16)), border: Border.all(color: AppColors.inputBorder)),
+      decoration: BoxDecoration(
+        color: AppColors.cardBg,
+        borderRadius: BorderRadius.circular(context.w(16)),
+        border: Border.all(color: AppColors.inputBorder),
+      ),
       child: Column(
         children: [
           Row(
@@ -416,27 +426,85 @@ class _BodyMapView extends StatelessWidget {
             ],
           ),
           SizedBox(height: context.h(16)),
-          LayoutBuilder(builder: (_, constraints) {
-            final w = constraints.maxWidth;
-            final h = w * 1.6;
-            return SizedBox(
-              width: w,
-              height: h,
-              child: Stack(
-                children: [
-                  CustomPaint(size: Size(w, h), painter: _BodyPainter(AppColors.primary.withOpacity(0.3))),
-                  _Bubble(x: w * 0.60, y: h * 0.02, data: controller.bodyParts.firstWhere((b) => b.key == 'ears'), onTap: () => _showBodyPartSheet(context, controller, 'ears')),
-                  _Bubble(x: w * 0.30, y: h * 0.22, data: controller.bodyParts.firstWhere((b) => b.key == 'torso'), onTap: () => _showBodyPartSheet(context, controller, 'torso')),
-                  _Bubble(x: w * 0.08, y: h * 0.28, data: controller.bodyParts.firstWhere((b) => b.key == 'hands'), onTap: () => _showBodyPartSheet(context, controller, 'hands'), small: true),
-                  _Bubble(x: w * 0.30, y: h * 0.42, data: controller.bodyParts.firstWhere((b) => b.key == 'waist'), onTap: () => _showBodyPartSheet(context, controller, 'waist')),
-                  _Bubble(x: w * 0.62, y: h * 0.28, data: controller.bodyParts.firstWhere((b) => b.key == 'head'), onTap: () => _showBodyPartSheet(context, controller, 'head'), small: true),
-                  _Bubble(x: w * 0.22, y: h * 0.62, data: controller.bodyParts.firstWhere((b) => b.key == 'feet'), onTap: () => _showBodyPartSheet(context, controller, 'feet'), small: true),
-                  _Bubble(x: w * 0.54, y: h * 0.62, data: controller.bodyParts.firstWhere((b) => b.key == 'feet'), onTap: () => _showBodyPartSheet(context, controller, 'feet'), small: true),
-                ],
-              ),
-            );
-          }),
+          LayoutBuilder(
+            builder: (_, constraints) {
+              final w = constraints.maxWidth;
+              final h = w * 1.55;
+
+              BodyPartData part(String key) =>
+                  controller.bodyParts.firstWhere((b) => b.key == key);
+
+              // Bubble sizes
+              final big   = context.w(56);
+              final mid   = context.w(48);
+              final small = context.w(40);
+
+              // Helper: center a bubble on a fractional (x,y) point of the canvas
+              Widget bubbleAt({
+                required double fx,
+                required double fy,
+                required String key,
+                required double size,
+              }) {
+                return Positioned(
+                  left: w * fx - size / 2,
+                  top:  h * fy - size / 2,
+                  child: _Bubble(
+                    data: part(key),
+                    size: size,
+                    onTap: () => _showBodyPartSheet(context, controller, key),
+                  ),
+                );
+              }
+
+              return SizedBox(
+                width: w,
+                height: h,
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    CustomPaint(
+                      size: Size(w, h),
+                      painter: _BodyPainter(const Color(0xFFAFC7E8)),
+                    ),
+
+                    // Ears — top right of the head
+                    bubbleAt(fx: 0.66, fy: 0.10, key: 'ears',  size: big),
+
+                    // Torso — chest center
+                    bubbleAt(fx: 0.50, fy: 0.34, key: 'torso', size: big),
+
+                    // Hands — left & right of the torso (use 'hands' for both visually,
+                    // they share the same data key)
+                    bubbleAt(fx: 0.20, fy: 0.40, key: 'hands', size: small),
+                    bubbleAt(fx: 0.80, fy: 0.40, key: 'hands', size: small),
+
+                    // Waist — lower abdomen center
+                    bubbleAt(fx: 0.50, fy: 0.50, key: 'waist', size: mid),
+
+                    // Head — its empty bubble sits over the head circle
+                    bubbleAt(fx: 0.50, fy: 0.13, key: 'head',  size: small),
+
+                    // Feet — both legs near the knees / shins
+                    bubbleAt(fx: 0.38, fy: 0.72, key: 'feet',  size: small),
+                    bubbleAt(fx: 0.62, fy: 0.72, key: 'feet',  size: small),
+                  ],
+                ),
+              );
+            },
+          ),
           SizedBox(height: context.h(16)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _LegendDot(color: const Color(0xFF22C55E), label: 'Full'),
+              SizedBox(width: context.w(16)),
+              _LegendDot(color: const Color(0xFFF59E0B), label: 'Partial'),
+              SizedBox(width: context.w(16)),
+              _LegendDot(color: const Color(0xFF9CA3AF), label: 'Empty'),
+            ],
+          ),
+          SizedBox(height: context.h(12)),
           Wrap(
             spacing: context.w(8),
             runSpacing: context.h(8),
@@ -448,6 +516,120 @@ class _BodyMapView extends StatelessWidget {
   }
 }
 
+class _Bubble extends StatelessWidget {
+  final BodyPartData data;
+  final VoidCallback onTap;
+  final double size;
+  const _Bubble({required this.data, required this.onTap, required this.size});
+
+  @override
+  Widget build(BuildContext context) {
+    final isSmall = size <= context.w(40);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: data.statusColor,
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: data.statusColor.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        alignment: Alignment.center,
+        child: AppText(
+          data: data.total == 0 ? '0' : '${data.packed}/${data.total}',
+          fontSize: isSmall ? 11 : 14,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _BodyPainter extends CustomPainter {
+  final Color color;
+  _BodyPainter(this.color);
+
+  @override
+  void paint(Canvas canvas, Size s) {
+    final w = s.width;
+    final h = s.height;
+
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2.0
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final headCenter = Offset(w * 0.50, h * 0.12);
+    final headRadius = w * 0.085;
+    canvas.drawCircle(headCenter, headRadius, paint);
+
+    // ── Neck ──────────────────────────────────
+    canvas.drawLine(Offset(w * 0.465, h * 0.165), Offset(w * 0.465, h * 0.205), paint);
+    canvas.drawLine(Offset(w * 0.535, h * 0.165), Offset(w * 0.535, h * 0.205), paint);
+
+    final shoulderY = h * 0.225;
+    final shoulderL = Offset(w * 0.32, shoulderY);
+    final shoulderR = Offset(w * 0.68, shoulderY);
+
+    // shoulder line
+    final shoulderPath = Path()
+      ..moveTo(shoulderL.dx, shoulderL.dy)
+      ..quadraticBezierTo(w * 0.50, h * 0.205, shoulderR.dx, shoulderR.dy);
+    canvas.drawPath(shoulderPath, paint);
+
+    final waistY = h * 0.52;
+    final torsoLeftTop  = Offset(w * 0.36, shoulderY + h * 0.01);
+    final torsoRightTop = Offset(w * 0.64, shoulderY + h * 0.01);
+    final torsoLeftBot  = Offset(w * 0.38, waistY);
+    final torsoRightBot = Offset(w * 0.62, waistY);
+
+    canvas.drawLine(torsoLeftTop,  torsoLeftBot,  paint);
+    canvas.drawLine(torsoRightTop, torsoRightBot, paint);
+    canvas.drawLine(torsoLeftBot,  torsoRightBot, paint);
+
+    // left arm (outer + inner)
+    canvas.drawLine(shoulderL, Offset(w * 0.16, h * 0.46), paint);
+    canvas.drawLine(Offset(w * 0.16, h * 0.46), Offset(w * 0.18, h * 0.50), paint);
+    canvas.drawLine(torsoLeftTop, Offset(w * 0.24, h * 0.47), paint);
+    // right arm
+    canvas.drawLine(shoulderR, Offset(w * 0.84, h * 0.46), paint);
+    canvas.drawLine(Offset(w * 0.84, h * 0.46), Offset(w * 0.82, h * 0.50), paint);
+    canvas.drawLine(torsoRightTop, Offset(w * 0.76, h * 0.47), paint);
+
+    final hipY = h * 0.55;
+    canvas.drawLine(torsoLeftBot,  Offset(w * 0.37, hipY), paint);
+    canvas.drawLine(torsoRightBot, Offset(w * 0.63, hipY), paint);
+
+    // inner seam
+    canvas.drawLine(Offset(w * 0.50, hipY), Offset(w * 0.50, h * 0.66), paint);
+    // left leg
+    canvas.drawLine(Offset(w * 0.37, hipY), Offset(w * 0.40, h * 0.78), paint);
+    canvas.drawLine(Offset(w * 0.40, h * 0.78), Offset(w * 0.40, h * 0.97), paint);
+    canvas.drawLine(Offset(w * 0.50, h * 0.66), Offset(w * 0.46, h * 0.78), paint);
+    canvas.drawLine(Offset(w * 0.46, h * 0.78), Offset(w * 0.45, h * 0.97), paint);
+    // right leg
+    canvas.drawLine(Offset(w * 0.63, hipY), Offset(w * 0.60, h * 0.78), paint);
+    canvas.drawLine(Offset(w * 0.60, h * 0.78), Offset(w * 0.60, h * 0.97), paint);
+    canvas.drawLine(Offset(w * 0.50, h * 0.66), Offset(w * 0.54, h * 0.78), paint);
+    canvas.drawLine(Offset(w * 0.54, h * 0.78), Offset(w * 0.55, h * 0.97), paint);
+
+    canvas.drawLine(Offset(w * 0.40, h * 0.97), Offset(w * 0.36, h * 0.99), paint);
+    canvas.drawLine(Offset(w * 0.60, h * 0.97), Offset(w * 0.64, h * 0.99), paint);
+  }
+
+  @override
+  bool shouldRepaint(_BodyPainter old) => old.color != color;
+}
 class _LegendDot extends StatelessWidget {
   final Color color;
   final String label;
@@ -466,38 +648,6 @@ class _LegendDot extends StatelessWidget {
   }
 }
 
-class _Bubble extends StatelessWidget {
-  final double x;
-  final double y;
-  final BodyPartData data;
-  final VoidCallback onTap;
-  final bool small;
-  const _Bubble({required this.x, required this.y, required this.data, required this.onTap, this.small = false});
-
-  @override
-  Widget build(BuildContext context) {
-    final size = small ? context.w(40) : context.w(56);
-    return Positioned(
-      left: x,
-      top: y,
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: size,
-          height: size,
-          decoration: BoxDecoration(color: data.statusColor, shape: BoxShape.circle),
-          alignment: Alignment.center,
-          child: AppText(
-            data: data.total == 0 ? '0' : '${data.packed}/${data.total}',
-            fontSize: small ? 10 : 13,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-      ),
-    );
-  }
-}
 
 class _BodyPartCard extends StatelessWidget {
   final BodyPartData bp;
@@ -528,31 +678,6 @@ class _BodyPartCard extends StatelessWidget {
   }
 }
 
-class _BodyPainter extends CustomPainter {
-  final Color color;
-  _BodyPainter(this.color);
-
-  @override
-  void paint(Canvas canvas, Size s) {
-    final p = Paint()..color = color..strokeWidth = 2.0..style = PaintingStyle.stroke..strokeCap = StrokeCap.round;
-    canvas.drawOval(Rect.fromCenter(center: Offset(s.width * 0.5, s.height * 0.08), width: s.width * 0.16, height: s.height * 0.12), p);
-    canvas.drawLine(Offset(s.width * 0.47, s.height * 0.14), Offset(s.width * 0.47, s.height * 0.19), p);
-    canvas.drawLine(Offset(s.width * 0.53, s.height * 0.14), Offset(s.width * 0.53, s.height * 0.19), p);
-    canvas.drawLine(Offset(s.width * 0.22, s.height * 0.21), Offset(s.width * 0.78, s.height * 0.21), p);
-    canvas.drawLine(Offset(s.width * 0.22, s.height * 0.21), Offset(s.width * 0.13, s.height * 0.46), p);
-    canvas.drawLine(Offset(s.width * 0.78, s.height * 0.21), Offset(s.width * 0.87, s.height * 0.46), p);
-    canvas.drawLine(Offset(s.width * 0.28, s.height * 0.21), Offset(s.width * 0.26, s.height * 0.50), p);
-    canvas.drawLine(Offset(s.width * 0.72, s.height * 0.21), Offset(s.width * 0.74, s.height * 0.50), p);
-    canvas.drawLine(Offset(s.width * 0.26, s.height * 0.50), Offset(s.width * 0.74, s.height * 0.50), p);
-    canvas.drawLine(Offset(s.width * 0.38, s.height * 0.50), Offset(s.width * 0.34, s.height * 0.78), p);
-    canvas.drawLine(Offset(s.width * 0.34, s.height * 0.78), Offset(s.width * 0.32, s.height * 0.96), p);
-    canvas.drawLine(Offset(s.width * 0.62, s.height * 0.50), Offset(s.width * 0.66, s.height * 0.78), p);
-    canvas.drawLine(Offset(s.width * 0.66, s.height * 0.78), Offset(s.width * 0.68, s.height * 0.96), p);
-  }
-
-  @override
-  bool shouldRepaint(_BodyPainter old) => old.color != color;
-}
 
 class _DashedButton extends StatelessWidget {
   final String label;

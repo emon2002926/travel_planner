@@ -20,20 +20,50 @@ import '../widgets/safety_tab.dart';
 import '../widgets/transport_tab.dart';
 
 
-class TripDetailPage extends StatelessWidget {
+
+class TripDetailPage extends StatefulWidget {
   final TripModel trip;
   const TripDetailPage({super.key, required this.trip});
 
   @override
-  Widget build(BuildContext context) {
-    if (!Get.isRegistered<TripDetailController>()) {
-      Get.put(TripDetailController(trip: trip));
-    } else if (Get.find<TripDetailController>().trip.id != trip.id) {
-      Get.delete<TripDetailController>(force: true);
-      Get.put(TripDetailController(trip: trip));
-    }
-    final controller = Get.find<TripDetailController>();
+  State<TripDetailPage> createState() => _TripDetailPageState();
+}
 
+class _TripDetailPageState extends State<TripDetailPage>
+    with SingleTickerProviderStateMixin {
+  late TripDetailController controller;
+  late TabController _tabController;
+
+  static const _tabs = [
+    'Overview', 'Packing', 'Gift', 'Home Prep', 'Transport',
+    'People', 'Expense', 'Safety', 'Hotel', 'End Trip',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    if (!Get.isRegistered<TripDetailController>()) {
+      Get.put(TripDetailController(trip: widget.trip));
+    } else if (Get.find<TripDetailController>().trip.id != widget.trip.id) {
+      Get.delete<TripDetailController>(force: true);
+      Get.put(TripDetailController(trip: widget.trip));
+    }
+    controller = Get.find<TripDetailController>();
+
+    _tabController = TabController(length: _tabs.length, vsync: this, initialIndex: controller.currentTab.value);
+    _tabController.addListener(() {
+      controller.currentTab.value = _tabController.index;
+    });
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Obx(() {
       final tc = GetInstance().isRegistered<ThemeController>()
           ? Get.find<ThemeController>()
@@ -43,36 +73,61 @@ class TripDetailPage extends StatelessWidget {
 
       return Scaffold(
         backgroundColor: AppColors.scaffoldBg,
-        body: Column(
-          children: [
-            _HeroSection(trip: trip, controller: controller),
-            _TabBar(
-              controller: controller,
-              scrollController: controller.tabScrollController,
-            ),
-            Container(height: 1, color: AppColors.inputBorder),
-            Expanded(
-              child: PageView.builder(
-                controller: controller.pageController,
-                itemCount: 10,
-                onPageChanged: (index) {
-                  controller.currentTab.value = index;
-                  controller.scrollTabBarToIndex(index);
-                },
-                itemBuilder: (context, index) {
-                  return SingleChildScrollView(
-                    padding: EdgeInsets.fromLTRB(
-                      context.w(16),
-                      context.h(16),
-                      context.w(16),
-                      context.h(120),
-                    ),
-                    child: _buildTabContent(index, controller),
-                  );
-                },
+        body: SafeArea(
+          child: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxScrolled) => [
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                sliver: SliverAppBar(
+                  backgroundColor: AppColors.scaffoldBg,
+                  expandedHeight: context.h(250),
+                  collapsedHeight: kToolbarHeight,
+                  pinned: false,
+                  floating: false,
+                  automaticallyImplyLeading: false,
+                  flexibleSpace: FlexibleSpaceBar(
+                    background: _HeroSection(trip: widget.trip),
+                    collapseMode: CollapseMode.parallax,
+                  ),
+                ),
               ),
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _TabBarDelegate(
+                  tabController: _tabController,
+                  tabs: _tabs,
+                  controller: controller,
+                  height: context.h(51),
+                ),
+              ),
+            ],
+            body: TabBarView(
+              controller: _tabController,
+              children: List.generate(_tabs.length, (index) {
+                return Builder(
+                  builder: (context) {
+                    return CustomScrollView(
+                      key: PageStorageKey<int>(index),
+                      slivers: [
+                        SliverOverlapInjector(
+                          handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                        ),
+                        SliverPadding(
+                          padding: EdgeInsets.fromLTRB(
+                            context.w(16), context.h(16),
+                            context.w(16), context.h(120),
+                          ),
+                          sliver: SliverToBoxAdapter(
+                            child: _buildTabContent(index, controller),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                );
+              }),
             ),
-          ],
+          ),
         ),
       );
     });
@@ -96,10 +151,83 @@ class TripDetailPage extends StatelessWidget {
 }
 
 
+class _TabBarDelegate extends SliverPersistentHeaderDelegate {
+  final TabController tabController;
+  final List<String> tabs;
+  final TripDetailController controller;
+  final double height;
+
+  _TabBarDelegate({
+    required this.tabController,
+    required this.tabs,
+    required this.controller,
+    required this.height,
+  });
+
+  @override
+  double get minExtent => height;
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
+    return Container(
+      color: AppColors.surface,
+      height: height,
+      alignment: Alignment.centerLeft,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            height: height - 1,
+            child: TabBar(
+              controller: tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              indicatorColor: Colors.transparent,
+              dividerColor: Colors.transparent,
+              padding: EdgeInsets.symmetric(horizontal: context.w(8)),
+              labelPadding: EdgeInsets.symmetric(horizontal: context.w(4)),
+              splashFactory: NoSplash.splashFactory,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              tabs: List.generate(tabs.length, (i) {
+                return Obx(() {
+                  final isSelected = controller.currentTab.value == i;
+                  return Container(
+                    margin: EdgeInsets.symmetric(vertical: context.h(8)),
+                    padding: EdgeInsets.symmetric(horizontal: context.w(14), vertical: context.h(6)),
+                    decoration: BoxDecoration(
+                      color: isSelected ? AppColors.scaffoldBg : Colors.transparent,
+                      borderRadius: BorderRadius.circular(context.w(20)),
+                    ),
+                    alignment: Alignment.center,
+                    child: AppText(
+                      data: tabs[i],
+                      fontSize: 14,
+                      fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
+                      color: isSelected ? AppColors.primary : AppColors.textSecondary,
+                    ),
+                  );
+                });
+              }),
+            ),
+          ),
+          Container(height: 1, color: AppColors.inputBorder),
+        ],
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_TabBarDelegate oldDelegate) => false;
+}
+
+
+
 class _HeroSection extends StatelessWidget {
   final TripModel trip;
-  final TripDetailController controller;
-  const _HeroSection({required this.trip, required this.controller});
+  const _HeroSection({required this.trip});
 
   @override
   Widget build(BuildContext context) {
@@ -108,30 +236,7 @@ class _HeroSection extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-
           Image.asset('assets/images/tokyo.png', fit: BoxFit.cover),
-          // Container(
-          //   decoration: const BoxDecoration(
-          //     gradient: LinearGradient(
-          //       begin: Alignment.topLeft,
-          //       end: Alignment.bottomRight,
-          //       colors: [Color(0xFF0D7377), Color(0xFF1B3E6F), Color(0xFF0A1628)],
-          //       stops: [0.0, 0.5, 1.0],
-          //     ),
-          //   ),
-          // ),
-          // Container(
-          //   decoration: BoxDecoration(
-          //     gradient: LinearGradient(
-          //       begin: Alignment.topCenter,
-          //       end: Alignment.bottomCenter,
-          //       colors: [
-          //         Colors.black.withOpacity(0.2),
-          //         Colors.black.withOpacity(0.55),
-          //       ],
-          //     ),
-          //   ),
-          // ),
           SafeArea(
             bottom: false,
             child: Padding(
@@ -157,17 +262,11 @@ class _HeroSection extends StatelessWidget {
                             color: Colors.black.withOpacity(0.3),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(
-                            Icons.arrow_back,
-                            color: Colors.white,
-                            size: context.sp(20),
-                          ),
+                          child: Icon(Icons.arrow_back, color: Colors.white, size: context.sp(20)),
                         ),
                       ),
                       GestureDetector(
-                        onTap: () {
-                          AppNavigation.push(ChatPage(), context: context);
-                        },
+                        onTap: () => AppNavigation.push(ChatPage(), context: context),
                         child: Stack(
                           clipBehavior: Clip.none,
                           children: [
@@ -178,11 +277,7 @@ class _HeroSection extends StatelessWidget {
                                 color: Colors.white.withOpacity(0.9),
                                 shape: BoxShape.circle,
                               ),
-                              child: Icon(
-                                Icons.message_outlined,
-                                color: AppColors.textPrimary,
-                                size: context.sp(20),
-                              ),
+                              child: Icon(Icons.message_outlined, color: AppColors.textPrimary, size: context.sp(20)),
                             ),
                             Positioned(
                               top: context.h(8),
@@ -190,10 +285,7 @@ class _HeroSection extends StatelessWidget {
                               child: Container(
                                 width: context.w(8),
                                 height: context.w(8),
-                                decoration: const BoxDecoration(
-                                  color: AppColors.primary,
-                                  shape: BoxShape.circle,
-                                ),
+                                decoration: const BoxDecoration(color: AppColors.primary, shape: BoxShape.circle),
                               ),
                             ),
                           ],
@@ -202,12 +294,7 @@ class _HeroSection extends StatelessWidget {
                     ],
                   ),
                   const Spacer(),
-                  AppText(
-                    data: trip.destination,
-                    fontSize: 30,
-                    fontWeight: FontWeight.w800,
-                    color: Colors.white,
-                  ),
+                  AppText(data: trip.destination, fontSize: 30, fontWeight: FontWeight.w800, color: Colors.white),
                   SizedBox(height: context.h(6)),
                   Row(
                     children: [
@@ -220,31 +307,24 @@ class _HeroSection extends StatelessWidget {
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: Color(0x4D151515),
+                          color: const Color(0x4D151515),
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Padding(
-                          padding: EdgeInsets.all(10),
+                          padding: const EdgeInsets.all(10),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.wb_sunny_outlined,
-                                size: context.sp(16),
-                                color: Colors.white.withOpacity(0.9),
-                              ),
+                              Icon(Icons.wb_sunny_outlined, size: context.sp(16), color: Colors.white.withOpacity(0.9)),
                               SizedBox(width: context.w(4)),
                               AppText(
-                                data: trip.weatherTemp.isNotEmpty
-                                    ? '${trip.weatherTemp.split(' ').first}°'
-                                    : '72°',
+                                data: trip.weatherTemp.isNotEmpty ? '${trip.weatherTemp.split(' ').first}°' : '72°',
                                 fontSize: 15,
                                 color: Colors.white.withOpacity(0.9),
                               ),
                             ],
                           ),
                         ),
-                      )
-
+                      ),
                     ],
                   ),
                   SizedBox(height: context.h(8)),
@@ -253,63 +333,6 @@ class _HeroSection extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-
-class _TabBar extends StatelessWidget {
-  final TripDetailController controller;
-  final ScrollController scrollController;
-  const _TabBar({required this.controller, required this.scrollController});
-
-  static const _tabs = [
-    'Overview', 'Packing', 'Gift', 'Home Prep', 'Transport',
-    'People', 'Expense', 'Safety', 'Hotel', 'End Trip',
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      color: AppColors.surface,
-      height: context.h(50),
-      child: SingleChildScrollView(
-        controller: scrollController,
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: context.w(12)),
-        child: Obx(
-              () => Row(
-            children: List.generate(_tabs.length, (i) {
-              final isSelected = controller.currentTab.value == i;
-              return GestureDetector(
-                onTap: () => controller.switchTab(i),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: EdgeInsets.symmetric(
-                    horizontal: context.w(4),
-                    vertical: context.h(8),
-                  ),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: context.w(14),
-                    vertical: context.h(6),
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? AppColors.scaffoldBg : Colors.transparent,
-                    borderRadius: BorderRadius.circular(context.w(20)),
-                  ),
-                  child: AppText(
-                    data: _tabs[i],
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w400,
-                    color: isSelected ? AppColors.primary : AppColors.textSecondary,
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
       ),
     );
   }
