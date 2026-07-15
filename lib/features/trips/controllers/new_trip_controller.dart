@@ -8,10 +8,7 @@ import '../../home/controllers/home_controller.dart';
 import '../../home/models/trip_model.dart';
 
 
-// ---------------------------------------------------------------------------
-// One leg of transport (the "Add More Flight" block repeats this).
-// Plain TextEditingControllers — disposed in the controller's onClose.
-// ---------------------------------------------------------------------------
+
 class TransportLeg {
   final String id;
   final carrier = TextEditingController();
@@ -39,14 +36,11 @@ class TransportLeg {
 
 class NewTripController extends GetxController {
   final currentStep = 0.obs;
-  static const int lastStep = 3; // 4 steps: 0..3
+  static const int lastStep = 3;
 
-  // Step 1
   final destinationController = TextEditingController();
-  final otherTransportController = TextEditingController();
   final groupSizeController = TextEditingController();
 
-  // Step 2
   final budgetController = TextEditingController();
   final foodController = TextEditingController();
   final transportBudgetController = TextEditingController();
@@ -54,8 +48,7 @@ class NewTripController extends GetxController {
   final shoppingController = TextEditingController();
   final activitiesController = TextEditingController();
 
-  final selectedTransport = <String>{}.obs;
-  final selectedTravelTypes = <String>{}.obs;
+  final selectedTravelType = Rxn<String>();
 
   final startDate = Rxn<DateTime>();
   final endDate = Rxn<DateTime>();
@@ -63,8 +56,7 @@ class NewTripController extends GetxController {
   final selectedCurrency = '\$'.obs;
   final selectedTripType = Rxn<String>();
 
-  // Step 3 — Transport details
-  final transportMode = 'Flight'.obs; // Flight / Train / Bus / Car
+  final transportMode = 'Flight'.obs;
   final transportLegs = <TransportLeg>[].obs;
 
   @override
@@ -73,13 +65,8 @@ class NewTripController extends GetxController {
     transportLegs.add(TransportLeg(id: _newLegId()));
   }
 
-  // -------------------------------------------------------------------------
-  // Navigation
-  // -------------------------------------------------------------------------
-
   void next() {
     if (!_validateStep(currentStep.value)) return;
-
     if (currentStep.value < lastStep) {
       currentStep.value++;
     } else {
@@ -87,8 +74,6 @@ class NewTripController extends GetxController {
     }
   }
 
-  /// Skip advances past the current step without validating it.
-  /// On the final step it still creates the trip (Skip + Create both finish).
   void skip() {
     if (currentStep.value < lastStep) {
       currentStep.value++;
@@ -108,23 +93,11 @@ class NewTripController extends GetxController {
   bool get isLastStep => currentStep.value == lastStep;
   String get primaryButtonText => isLastStep ? 'Create' : 'Next';
 
-  // -------------------------------------------------------------------------
-  // Validation — only the steps the design treats as required.
-  // Step 1: destination + transport + valid dates.
-  // Step 2 (budget) and Step 3 (transport details) are skippable/optional.
-  // Step 4: trip type.
-  // -------------------------------------------------------------------------
-
   bool _validateStep(int step) {
     switch (step) {
       case 0:
         if (destinationController.text.trim().isEmpty) {
           CustomSnackBar.warning('Please enter your destination');
-          return false;
-        }
-        if (selectedTransport.isEmpty &&
-            otherTransportController.text.trim().isEmpty) {
-          CustomSnackBar.warning('Please select at least one transportation');
           return false;
         }
         if (startDate.value == null || endDate.value == null) {
@@ -146,7 +119,7 @@ class NewTripController extends GetxController {
         return true;
 
       case 2:
-        return true; // transport details fully optional
+        return true;
 
       case 3:
         if (selectedTripType.value == null) {
@@ -160,34 +133,19 @@ class NewTripController extends GetxController {
     }
   }
 
-  // -------------------------------------------------------------------------
-  // Selections
-  // -------------------------------------------------------------------------
-
-  void toggleTransport(String v) => selectedTransport.contains(v)
-      ? selectedTransport.remove(v)
-      : selectedTransport.add(v);
-
-  void toggleTravelType(String v) => selectedTravelTypes.contains(v)
-      ? selectedTravelTypes.remove(v)
-      : selectedTravelTypes.add(v);
+  void selectTravelType(String v) => selectedTravelType.value = v;
 
   void selectTripType(String v) => selectedTripType.value = v;
 
   void setTransportMode(String v) => transportMode.value = v;
 
-  void addTransportLeg() =>
-      transportLegs.add(TransportLeg(id: _newLegId()));
+  void addTransportLeg() => transportLegs.add(TransportLeg(id: _newLegId()));
 
   void removeTransportLeg(TransportLeg leg) {
-    if (transportLegs.length <= 1) return; // keep at least one
+    if (transportLegs.length <= 1) return;
     leg.dispose();
     transportLegs.remove(leg);
   }
-
-  // -------------------------------------------------------------------------
-  // Dates
-  // -------------------------------------------------------------------------
 
   Future<void> pickDate(BuildContext context, bool isStart) async {
     final now = DateTime.now();
@@ -216,12 +174,10 @@ class NewTripController extends GetxController {
     }
   }
 
-  /// Date + time picker for a transport leg's arrival / departure.
   Future<void> pickLegDateTime(
       BuildContext context, TransportLeg leg, bool isArrival) async {
     final now = DateTime.now();
-    final current =
-    isArrival ? leg.arrivalTime.value : leg.departureTime.value;
+    final current = isArrival ? leg.arrivalTime.value : leg.departureTime.value;
 
     final date = await showDatePicker(
       context: context,
@@ -251,10 +207,6 @@ class NewTripController extends GetxController {
       leg.departureTime.value = dt;
     }
   }
-
-  // -------------------------------------------------------------------------
-  // Submit
-  // -------------------------------------------------------------------------
 
   void _submitTrip() {
     final home = Get.find<HomeController>();
@@ -308,7 +260,6 @@ class NewTripController extends GetxController {
   @override
   void onClose() {
     destinationController.dispose();
-    otherTransportController.dispose();
     groupSizeController.dispose();
     budgetController.dispose();
     transportBudgetController.dispose();

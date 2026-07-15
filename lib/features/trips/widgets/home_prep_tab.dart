@@ -69,9 +69,9 @@ class _CategoryCard extends StatelessWidget {
           ...category.tasks.map((task) => _TaskRow(controller: controller, category: category, task: task)),
           if (controller.canEdit) ...[
             SizedBox(height: context.h(8)),
-            _AddNewButton(
-              onTap: () => _showAddTaskSheet(context, controller, category.id),
-            ),
+            // _AddNewButton(
+            //   onTap: () => _showAddTaskSheet(context, controller, category.id),
+            // ),
           ],
         ],
       ),
@@ -119,33 +119,33 @@ class _TaskRow extends StatelessWidget {
   }
 }
 
-class _AddNewButton extends StatelessWidget {
-  final VoidCallback onTap;
-  const _AddNewButton({required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: context.h(12)),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(context.w(12)),
-          border: Border.all(color: AppColors.inputBorder),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.add, color: AppColors.textSecondary, size: context.sp(18)),
-            SizedBox(width: context.w(6)),
-            AppText(data: 'Add New', fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class _AddNewButton extends StatelessWidget {
+//   final VoidCallback onTap;
+//   const _AddNewButton({required this.onTap});
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         width: double.infinity,
+//         padding: EdgeInsets.symmetric(vertical: context.h(12)),
+//         decoration: BoxDecoration(
+//           borderRadius: BorderRadius.circular(context.w(12)),
+//           border: Border.all(color: AppColors.inputBorder),
+//         ),
+//         child: Row(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Icon(Icons.add, color: AppColors.textSecondary, size: context.sp(18)),
+//             SizedBox(width: context.w(6)),
+//             AppText(data: 'Add New', fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.textSecondary),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 void _showAddTaskSheet(BuildContext context, TripDetailController controller, String categoryId) {
   final labelCtrl = TextEditingController();

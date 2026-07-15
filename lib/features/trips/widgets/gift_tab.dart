@@ -4,6 +4,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/util/screen_size.dart';
 import '../../../../core/widgets/buttons/app_button.dart';
 import '../../../../core/widgets/text/app_text.dart';
+import '../../../core/widgets/snakbar/custom_snackbar.dart';
 import '../../../core/widgets/text/text_field/app_text_filed.dart';
 import '../controllers/trip_detail_controller.dart';
 import '../models/trip_detail_models.dart';
@@ -277,7 +278,8 @@ class _ActionBtn extends StatelessWidget {
   }
 }
 
-void _showSetStatusSheet(BuildContext context, TripDetailController controller, GiftItem gift) {
+void _showSetStatusSheet(BuildContext context, TripDetailController controller, GiftItem gift)
+{
   showModalBottomSheet(
     context: context,
     backgroundColor: Colors.transparent,
@@ -320,26 +322,41 @@ void _showSetStatusSheet(BuildContext context, TripDetailController controller, 
 void _showAddGiftSheet(BuildContext context, TripDetailController controller, {GiftItem? editGift}) {
   final step = 1.obs;
   final direction = (editGift?.direction ?? 'giver').obs;
+
   final nameCtrl = TextEditingController(text: editGift?.name ?? '');
-  final priceCtrl = TextEditingController(text: editGift != null && editGift.price > 0 ? '${editGift.price.toInt()}' : '');
-  final locationCtrl = TextEditingController(text: editGift?.location ?? '');
+  final giftForCtrl = TextEditingController(text: editGift?.forPerson ?? '');
+  final receiverPhoneCtrl = TextEditingController();
+  final deliveryAddressCtrl = TextEditingController(text: editGift?.location ?? '');
+  final addInfoCtrl = TextEditingController();
   final selectedPerson = (editGift?.forPerson ?? (controller.members.isNotEmpty ? controller.members.first.name : '')).obs;
+
+  final giftFromCtrl = TextEditingController();
+  final senderPhoneCtrl = TextEditingController();
+
   final selectedStatus = (editGift?.status ?? 'unpacked').obs;
 
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    builder: (sheetContext) => GestureDetector(
+      onTap: () => FocusScope.of(sheetContext).unfocus(),
+      child: AnimatedPadding(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
         ),
-        padding: const EdgeInsets.all(20),
-        child: Obx(() => SingleChildScrollView(
-          child: Column(
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.92,
+          ),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+          child: Obx(() => Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -352,114 +369,190 @@ void _showAddGiftSheet(BuildContext context, TripDetailController controller, {G
               const SizedBox(height: 4),
               Text('Step ${step.value}', style: const TextStyle(color: Colors.grey, fontSize: 13)),
               const SizedBox(height: 16),
-              if (step.value == 1) ...[
-                _DirectionCard(
-                  title: 'I am buying or taking a gift',
-                  subtitle: 'You are the gift giver',
-                  isSelected: direction.value == 'giver',
-                  onTap: () => direction.value = 'giver',
-                ),
-                const SizedBox(height: 12),
-                _DirectionCard(
-                  title: 'Someone asked me to deliver',
-                  subtitle: 'You are the carrier',
-                  isSelected: direction.value == 'carrier',
-                  onTap: () => direction.value = 'carrier',
-                ),
-              ] else ...[
-                AppTextField(controller: nameCtrl, label: 'Gift Name', hintText: 'Enter name'),
-                const SizedBox(height: 12),
-                const Text('Gift For', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.inputFill,
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(color: AppColors.inputBorder),
-                  ),
-                  child: DropdownButton<String>(
-                    value: selectedPerson.value.isNotEmpty ? selectedPerson.value : null,
-                    hint: const Text('Select people', style: TextStyle(color: Colors.grey)),
-                    isExpanded: true,
-                    underline: const SizedBox(),
-                    onChanged: (v) { if (v != null) selectedPerson.value = v; },
-                    items: controller.members.map((m) => DropdownMenuItem(value: m.name, child: Text(m.name))).toList(),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                AppTextField(controller: priceCtrl, label: 'Price (Optional)', hintText: 'e.g. 45', keyboardType: TextInputType.number),
-                const SizedBox(height: 12),
-                AppTextField(controller: locationCtrl, label: 'Purchase Location', hintText: 'e.g. Kyoto Market'),
-                const SizedBox(height: 12),
-                const Text('Set status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
-                const SizedBox(height: 10),
-                Row(
-                  children: ['Unpacked', 'Packed', 'Delivered'].asMap().entries.map((e) {
-                    final s = e.value;
-                    final isLast = e.key == 2;
-                    final isSelected = selectedStatus.value == s.toLowerCase();
-                    return Expanded(
-                      child: GestureDetector(
-                        onTap: () => selectedStatus.value = s.toLowerCase(),
-                        child: Container(
-                          margin: EdgeInsets.only(right: isLast ? 0 : 8),
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          decoration: BoxDecoration(
-                            color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: isSelected ? AppColors.primary : Colors.grey.shade300),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            s,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: isSelected ? AppColors.primary : Colors.grey.shade600,
-                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                            ),
-                          ),
+              Flexible(
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (step.value == 1) ...[
+                        _DirectionCard(
+                          title: 'I am buying or taking a gift',
+                          subtitle: 'You are the gift giver',
+                          isSelected: direction.value == 'giver',
+                          onTap: () => direction.value = 'giver',
                         ),
-                      ),
-                    );
-                  }).toList(),
+                        const SizedBox(height: 12),
+                        _DirectionCard(
+                          title: 'Someone asked me to deliver',
+                          subtitle: 'You are the carrier',
+                          isSelected: direction.value == 'carrier',
+                          onTap: () => direction.value = 'carrier',
+                        ),
+                      ] else if (direction.value == 'giver') ...[
+                        AppTextField(controller: nameCtrl, label: 'Gift Name', hintText: 'Enter Name'),
+                        const SizedBox(height: 12),
+                        const Text('Gift For', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                        const SizedBox(height: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          decoration: BoxDecoration(
+                            color: AppColors.inputFill,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.inputBorder),
+                          ),
+                          child: DropdownButton<String>(
+                            value: selectedPerson.value.isNotEmpty ? selectedPerson.value : null,
+                            hint: const Text('Select people', style: TextStyle(color: Colors.grey)),
+                            isExpanded: true,
+                            underline: const SizedBox(),
+                            onChanged: (v) { if (v != null) selectedPerson.value = v; },
+                            items: controller.members.map((m) => DropdownMenuItem(value: m.name, child: Text(m.name))).toList(),
+                          ),
+                        ),                        const SizedBox(height: 12),
+                        // AppTextField(controller: giftForCtrl, label: 'Gift For', hintText: 'Enter Name'),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: receiverPhoneCtrl,
+                          label: 'Gift Receiver Phone Number',
+                          hintText: 'Enter Number',
+                          keyboardType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: deliveryAddressCtrl, label: 'Delivery Address', hintText: 'Pick Location'),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: addInfoCtrl, label: 'Add Info for this gift', hintText: 'Type Here'),
+                        const SizedBox(height: 12),
+                        _StatusSelector(selectedStatus: selectedStatus),
+                      ] else ...[
+                        AppTextField(controller: nameCtrl, label: 'Gift Name', hintText: 'Enter name'),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: giftFromCtrl, label: 'Gift From', hintText: 'Enter Name'),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: senderPhoneCtrl,
+                          label: 'Gift Sender Phone Number',
+                          hintText: 'Enter Number',
+                          keyboardType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: giftForCtrl, label: 'Gift For', hintText: 'Enter Name'),
+                        const SizedBox(height: 12),
+                        AppTextField(
+                          controller: receiverPhoneCtrl,
+                          label: 'Gift Receiver Phone Number',
+                          hintText: 'Enter Number',
+                          keyboardType: TextInputType.phone,
+                        ),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: deliveryAddressCtrl, label: 'Delivery Address', hintText: 'Pick Location'),
+                        const SizedBox(height: 12),
+                        AppTextField(controller: addInfoCtrl, label: 'Add Info for this gift', hintText: 'Type Here'),
+                        const SizedBox(height: 12),
+                        _StatusSelector(selectedStatus: selectedStatus),
+                      ],
+                      const SizedBox(height: 20),
+                    ],
+                  ),
                 ),
-              ],
-              const SizedBox(height: 20),
-              AppButton(
-                buttonText: step.value == 1 ? 'Next - Gift Details' : (editGift != null ? 'Update Gift' : 'Save Gift'),
-                onPressed: () {
-                  if (step.value == 1) {
-                    step.value = 2;
-                  } else {
-                    if (nameCtrl.text.isEmpty) return;
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: AppButton(
+                  buttonText: step.value == 1
+                      ? 'Next - Gift Details'
+                      : (editGift != null ? 'Update Gift' : 'Save Gift'),
+                  onPressed: () {
+                    if (step.value == 1) {
+                      step.value = 2;
+                      return;
+                    }
+                    final name = nameCtrl.text.trim();
+                    if (name.isEmpty) {
+                      CustomSnackBar.warning('Please enter a gift name');
+                      return;
+                    }
+                    final forPerson = giftForCtrl.text.trim();
+                    final location = deliveryAddressCtrl.text.trim();
                     if (editGift != null) {
-                      controller.updateGift(editGift.id, nameCtrl.text, double.tryParse(priceCtrl.text) ?? 0, selectedPerson.value, locationCtrl.text, direction.value, selectedStatus.value);
+                      controller.updateGift(
+                        editGift.id, name, 0,
+                        forPerson, location,
+                        direction.value, selectedStatus.value,
+                      );
                     } else {
                       controller.addGift(GiftItem(
                         id: DateTime.now().millisecondsSinceEpoch.toString(),
-                        name: nameCtrl.text,
-                        price: double.tryParse(priceCtrl.text) ?? 0,
-                        forPerson: selectedPerson.value,
-                        location: locationCtrl.text,
+                        name: name,
+                        price: 0,
+                        forPerson: forPerson,
+                        location: location,
                         direction: direction.value,
                         status: selectedStatus.value,
                       ));
                     }
-                    Get.back();
-                  }
-                },
-                borderRadius: 30,
-                buttonHeight: 52,
+                    Navigator.of(sheetContext).pop();
+                  },
+                  borderRadius: 30,
+                  buttonHeight: 52,
+                ),
               ),
             ],
-          ),
-        )),
+          )),
+        ),
       ),
     ),
   );
 }
 
+class _StatusSelector extends StatelessWidget {
+  final RxString selectedStatus;
+  const _StatusSelector({required this.selectedStatus});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text('Set status', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+        const SizedBox(height: 10),
+        Obx(() => Row(
+          children: ['Unpacked', 'Packed', 'Delivered'].asMap().entries.map((e) {
+            final s = e.value;
+            final isLast = e.key == 2;
+            final isSelected = selectedStatus.value == s.toLowerCase();
+            return Expanded(
+              child: GestureDetector(
+                onTap: () => selectedStatus.value = s.toLowerCase(),
+                child: Container(
+                  margin: EdgeInsets.only(right: isLast ? 0 : 8),
+                  padding: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    color: isSelected ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+                    borderRadius: BorderRadius.circular(24),
+                    border: Border.all(
+                      color: isSelected ? AppColors.primary : Colors.grey.shade300,
+                    ),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    s,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected ? AppColors.primary : Colors.grey.shade600,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        )),
+      ],
+    );
+  }
+}
 class _DirectionCard extends StatelessWidget {
   final String title;
   final String subtitle;

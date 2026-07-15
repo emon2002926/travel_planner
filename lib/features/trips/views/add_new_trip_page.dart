@@ -12,9 +12,6 @@ import '../../../core/widgets/text/text_field/app_text_filed.dart';
 import '../../settings/views/notification_screen.dart';
 import '../controllers/new_trip_controller.dart';
 
-// Changed StatelessWidget → StatefulWidget so the controller is created ONCE
-// in initState and deleted ONCE in dispose. This prevents the keyboard /
-// rebuild cycle from wiping the controller (and all form input) on every frame.
 class AddNewTripPage extends StatefulWidget {
   const AddNewTripPage({super.key});
 
@@ -78,7 +75,6 @@ class _AddNewTripPageState extends State<AddNewTripPage> {
     });
   }
 
-  // Skip (outline) + Next/Create (filled) — on every step.
   Widget _buildBottomBar(BuildContext context, NewTripController controller) {
     return Padding(
       padding: EdgeInsets.fromLTRB(
@@ -235,39 +231,16 @@ class _Step1 extends StatelessWidget {
         ),
         SizedBox(height: context.h(24)),
         AppText(
-          data: 'Transportation',
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: AppColors.textPrimary,
-        ),
-        SizedBox(height: context.h(12)),
-        Obx(() => _checkGrid(
-          context,
-          ['Flight', 'Train', 'Car', 'Ship'],
-          controller.selectedTransport,
-          controller.toggleTransport,
-        )),
-        SizedBox(height: context.h(12)),
-        AppTextField(
-          controller: controller.otherTransportController,
-          hintText: 'other',
-        ),
-        SizedBox(height: context.h(24)),
-        AppText(
           data: 'Travel Type',
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppColors.textPrimary,
         ),
         SizedBox(height: context.h(12)),
-        Obx(() => _checkGrid(
-          context,
-          ['Relaxed', 'Low Adrenaline', 'Adrenaline', 'High Adrenaline'],
-          controller.selectedTravelTypes,
-          controller.toggleTravelType,
-        )),
+        _TravelTypeGrid(controller: controller),
         SizedBox(height: context.h(24)),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Expanded(
               child: _DateSection(
@@ -286,6 +259,8 @@ class _Step1 extends StatelessWidget {
             ),
           ],
         ),
+        SizedBox(height: context.h(6)),
+         _TripDurationRow(controller: controller),
         SizedBox(height: context.h(24)),
         AppText(
           data: 'Total traveler',
@@ -313,6 +288,137 @@ class _Step1 extends StatelessWidget {
   }
 }
 
+class _TravelTypeGrid extends StatelessWidget {
+  final NewTripController controller;
+  const _TravelTypeGrid({required this.controller});
+
+  static const _types = [
+    ('Low Adrenaline', 'Calm & Steady'),
+    ('Relaxed', 'Smooth Journey'),
+    ('High Adrenaline', 'Thrilling Drive'),
+    ('Adrenaline', 'Ultimate Rush'),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.count(
+      crossAxisCount: 2,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: EdgeInsets.zero,
+      crossAxisSpacing: context.w(12),
+      mainAxisSpacing: context.h(12),
+      childAspectRatio: 2.6,
+      children: _types
+          .map((type) => Obx(() {
+        final isSelected =
+            controller.selectedTravelType.value == type.$1;
+        return GestureDetector(
+          onTap: () => controller.selectTravelType(type.$1),
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: isSelected
+                    ? AppColors.primary
+                    : AppColors.borderColor,
+                width: isSelected ? 2 : 1,
+              ),
+              borderRadius: BorderRadius.circular(10),
+              color: AppColors.surface,
+            ),
+            padding: EdgeInsets.symmetric(horizontal: context.w(12)),
+            child: Row(
+              children: [
+                Container(
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.primary
+                          : AppColors.borderColor,
+                      width: 2,
+                    ),
+                  ),
+                  child: isSelected
+                      ? Center(
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: AppColors.primary,
+                      ),
+                    ),
+                  )
+                      : null,
+                ),
+                SizedBox(width: context.w(8)),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppText(
+                      data: type.$1,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: AppColors.textPrimary,
+                    ),
+                    AppText(
+                      data: type.$2,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.textSecondary,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      }))
+          .toList(),
+    );
+  }
+}
+
+class _TripDurationRow extends StatelessWidget {
+  final NewTripController controller;
+  const _TripDurationRow({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final start = controller.startDate.value;
+      final end = controller.endDate.value;
+
+      if (start == null || end == null) return const SizedBox.shrink();
+
+      final now = DateTime.now();
+      final duration = end.difference(start).inDays + 1;
+      final daysAway = start.difference(now).inDays;
+
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          AppText(
+            data: '$duration Days Trip.',
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+          ),
+          AppText(
+            data: daysAway > 0 ? '$daysAway days away this trip' : 'Trip starts today',
+            fontSize: 12,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+          ),
+        ],
+      );
+    });
+  }
+}
 class _Step2 extends StatelessWidget {
   final NewTripController controller;
   const _Step2({required this.controller});
@@ -331,7 +437,7 @@ class _Step2 extends StatelessWidget {
         SizedBox(height: context.h(14)),
         AppTextField(
           controller: controller.budgetController,
-          hintText: 'e.g. \$240',
+          hintText: '\$2400',
           keyboardType: TextInputType.number,
           suffixWidget: Obx(() => _CurrencyDropdown(
             value: controller.selectedCurrency.value,
@@ -350,6 +456,7 @@ class _Step2 extends StatelessWidget {
                 iconColor: const Color(0xFF3B82F6),
                 iconBg: const Color(0xFFEFF6FF),
                 inputController: controller.foodController,
+                hintText: '\$600',
               ),
             ),
             SizedBox(width: context.w(12)),
@@ -360,6 +467,7 @@ class _Step2 extends StatelessWidget {
                 iconColor: const Color(0xFF10B981),
                 iconBg: const Color(0xFFD1FAE5),
                 inputController: controller.transportBudgetController,
+                hintText: '\$300',
               ),
             ),
           ],
@@ -374,6 +482,7 @@ class _Step2 extends StatelessWidget {
                 iconColor: const Color(0xFFF59E0B),
                 iconBg: const Color(0xFFFEF3C7),
                 inputController: controller.stayController,
+                hintText: '\$600',
               ),
             ),
             SizedBox(width: context.w(12)),
@@ -384,6 +493,7 @@ class _Step2 extends StatelessWidget {
                 iconColor: const Color(0xFF8B5CF6),
                 iconBg: const Color(0xFFEDE9FE),
                 inputController: controller.shoppingController,
+                hintText: '\$500',
               ),
             ),
           ],
@@ -398,6 +508,7 @@ class _Step2 extends StatelessWidget {
                 iconColor: const Color(0xFFEF4444),
                 iconBg: const Color(0xFFFEE2E2),
                 inputController: controller.activitiesController,
+                hintText: '\$240',
               ),
             ),
             const Spacer(),
@@ -408,10 +519,6 @@ class _Step2 extends StatelessWidget {
     );
   }
 }
-
-// ---------------------------------------------------------------------------
-// Step 3 — Transport details
-// ---------------------------------------------------------------------------
 
 class _Step3Transport extends StatelessWidget {
   final NewTripController controller;
@@ -443,8 +550,6 @@ class _Step3Transport extends StatelessWidget {
           color: AppColors.textSecondary,
         ),
         SizedBox(height: context.h(16)),
-
-        // Segmented Flight / Train / Bus / Car
         Container(
           padding: EdgeInsets.all(context.w(6)),
           decoration: BoxDecoration(
@@ -460,22 +565,31 @@ class _Step3Transport extends StatelessWidget {
                   onTap: () => controller.setTransportMode(m),
                   behavior: HitTestBehavior.opaque,
                   child: Container(
-                    padding:
-                    EdgeInsets.symmetric(vertical: context.h(10)),
+                    padding: EdgeInsets.symmetric(vertical: context.h(10)),
                     decoration: BoxDecoration(
                       color: selected
-                          ? AppColors.primary.withOpacity(0.08)
+                          ? AppColors.scaffoldBg
                           : Colors.transparent,
-                      borderRadius:
-                      BorderRadius.circular(context.w(10)),
+                      borderRadius: BorderRadius.circular(context.w(10)),
                       border: selected
-                          ? Border.all(color: AppColors.primary)
+                          ? Border.all(color: AppColors.inputBorder)
+                          : null,
+                      boxShadow: selected
+                          ? [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.06),
+                          blurRadius: 6,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
                           : null,
                     ),
                     child: Column(
                       children: [
-                        Text(emojis[m]!,
-                            style: TextStyle(fontSize: context.sp(20))),
+                        Text(
+                          emojis[m]!,
+                          style: TextStyle(fontSize: context.sp(22)),
+                        ),
                         SizedBox(height: context.h(4)),
                         AppText(
                           data: m,
@@ -494,8 +608,6 @@ class _Step3Transport extends StatelessWidget {
           )),
         ),
         SizedBox(height: context.h(20)),
-
-        // One block per leg
         Obx(() => Column(
           children: controller.transportLegs
               .map((leg) => _TransportLegBlock(
@@ -505,8 +617,6 @@ class _Step3Transport extends StatelessWidget {
           ))
               .toList(),
         )),
-
-        // Add More <mode>
         SizedBox(height: context.h(4)),
         Obx(() => GestureDetector(
           onTap: controller.addTransportLeg,
@@ -518,14 +628,13 @@ class _Step3Transport extends StatelessWidget {
               borderRadius: BorderRadius.circular(context.w(12)),
               border: Border.all(
                 color: AppColors.primary,
-                width: 1,
+                style: BorderStyle.solid,
               ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.add,
-                    size: context.sp(18), color: AppColors.primary),
+                Icon(Icons.add, size: context.sp(18), color: AppColors.primary),
                 SizedBox(width: context.w(8)),
                 AppText(
                   data: 'Add More ${controller.transportMode.value}',
@@ -567,19 +676,27 @@ class _TransportLegBlock extends StatelessWidget {
                 onTap: () => controller.removeTransportLeg(leg),
                 child: Padding(
                   padding: EdgeInsets.only(bottom: context.h(4)),
-                  child: Icon(Icons.close,
-                      size: context.sp(18), color: AppColors.textSecondary),
+                  child: Icon(
+                    Icons.close,
+                    size: context.sp(18),
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ),
             ),
           _Label('Carrier / Airline'),
           SizedBox(height: context.h(8)),
-          AppTextField(controller: leg.carrier, hintText: 'e.g. Kyoto, Japan'),
+          AppTextField(
+            controller: leg.carrier,
+            hintText: 'e.g. Emirates, ANA',
+          ),
           SizedBox(height: context.h(16)),
           _Label('Booking Reference'),
           SizedBox(height: context.h(8)),
           AppTextField(
-              controller: leg.bookingRef, hintText: 'e.g. Kyoto, Japan'),
+            controller: leg.bookingRef,
+            hintText: 'e.g. ABC123',
+          ),
           SizedBox(height: context.h(16)),
           _Label('Arrival'),
           SizedBox(height: context.h(8)),
@@ -595,8 +712,7 @@ class _TransportLegBlock extends StatelessWidget {
               Expanded(
                 child: _DateTimeField(
                   value: leg.arrivalTime,
-                  onTap: () =>
-                      controller.pickLegDateTime(context, leg, true),
+                  onTap: () => controller.pickLegDateTime(context, leg, true),
                 ),
               ),
             ],
@@ -616,8 +732,7 @@ class _TransportLegBlock extends StatelessWidget {
               Expanded(
                 child: _DateTimeField(
                   value: leg.departureTime,
-                  onTap: () =>
-                      controller.pickLegDateTime(context, leg, false),
+                  onTap: () => controller.pickLegDateTime(context, leg, false),
                 ),
               ),
             ],
@@ -625,21 +740,32 @@ class _TransportLegBlock extends StatelessWidget {
           SizedBox(height: context.h(16)),
           _Label('Gate Number'),
           SizedBox(height: context.h(8)),
-          AppTextField(controller: leg.gate, hintText: 'Enter gate number'),
+          AppTextField(
+            controller: leg.gate,
+            hintText: 'Enter gate number',
+          ),
           SizedBox(height: context.h(16)),
           _Label('Terminal'),
           SizedBox(height: context.h(8)),
-          AppTextField(controller: leg.terminal, hintText: 'Enter terminal'),
+          AppTextField(
+            controller: leg.terminal,
+            hintText: 'Enter terminal',
+          ),
           SizedBox(height: context.h(16)),
           _Label('Seat Number'),
           SizedBox(height: context.h(8)),
-          AppTextField(controller: leg.seat, hintText: 'Enter seat number'),
+          AppTextField(
+            controller: leg.seat,
+            hintText: 'Enter seat number',
+          ),
           SizedBox(height: context.h(8)),
         ],
       ),
     );
   }
 }
+
+
 
 class _Label extends StatelessWidget {
   final String text;
@@ -710,9 +836,6 @@ class _DateTimeField extends StatelessWidget {
   }
 }
 
-// ---------------------------------------------------------------------------
-// Step 4 — Trip type
-// ---------------------------------------------------------------------------
 
 class _Step4Type extends StatelessWidget {
   final NewTripController controller;
@@ -809,69 +932,6 @@ class _Step4Type extends StatelessWidget {
       ],
     );
   }
-}
-
-// ---------------------------------------------------------------------------
-// Shared widgets (unchanged)
-// ---------------------------------------------------------------------------
-
-Widget _checkGrid(
-    BuildContext context,
-    List<String> items,
-    RxSet<String> selected,
-    void Function(String) onToggle,
-    ) {
-  final rows = <Widget>[];
-  for (int i = 0; i < items.length; i += 2) {
-    rows.add(
-      Row(
-        children: [
-          Expanded(
-              child: _checkItem(
-                  context, items[i], selected.contains(items[i]), onToggle)),
-          if (i + 1 < items.length)
-            Expanded(
-                child: _checkItem(context, items[i + 1],
-                    selected.contains(items[i + 1]), onToggle)),
-        ],
-      ),
-    );
-    if (i + 2 < items.length) rows.add(SizedBox(height: context.h(10)));
-  }
-  return Column(children: rows);
-}
-
-Widget _checkItem(
-    BuildContext context,
-    String label,
-    bool isChecked,
-    void Function(String) onToggle,
-    ) {
-  return GestureDetector(
-    onTap: () => onToggle(label),
-    behavior: HitTestBehavior.opaque,
-    child: Row(
-      children: [
-        Container(
-          width: context.w(20),
-          height: context.w(20),
-          decoration: BoxDecoration(
-            color: isChecked ? const Color(0xFF3D4A5A) : Colors.transparent,
-            borderRadius: BorderRadius.circular(4),
-            border: Border.all(
-              color:
-              isChecked ? const Color(0xFF3D4A5A) : AppColors.inputBorder,
-            ),
-          ),
-          child: isChecked
-              ? Icon(Icons.check, size: context.sp(13), color: Colors.white)
-              : null,
-        ),
-        SizedBox(width: context.w(8)),
-        AppText(data: label, fontSize: 14, color: AppColors.textPrimary),
-      ],
-    ),
-  );
 }
 
 class _DateSection extends StatelessWidget {
@@ -1065,6 +1125,7 @@ class _BudgetCategoryCard extends StatelessWidget {
   final Color iconColor;
   final Color iconBg;
   final TextEditingController inputController;
+  final String hintText;
 
   const _BudgetCategoryCard({
     required this.label,
@@ -1072,6 +1133,7 @@ class _BudgetCategoryCard extends StatelessWidget {
     required this.iconColor,
     required this.iconBg,
     required this.inputController,
+    required this.hintText,
   });
 
   @override
@@ -1111,7 +1173,7 @@ class _BudgetCategoryCard extends StatelessWidget {
                     color: AppColors.textPrimary,
                   ),
                   decoration: InputDecoration(
-                    hintText: '0',
+                    hintText: hintText,
                     hintStyle: GoogleFonts.inter(
                       color: AppColors.inputHint,
                       fontSize: context.sp(14),

@@ -128,15 +128,21 @@ class _ConverterRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppText(data: 'From', fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              Row(
+                children: [
+                  AppText(data: 'From', fontSize: context.sp(14), fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  SizedBox(width: context.w(4)),
+                  AppText(data: "(Home Currency)", fontSize: context.sp(12), fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                ],
+              ),
               SizedBox(height: context.h(8)),
-              _AmountField(
+              Obx(() => _AmountField(
                 initialValue: controller.fromAmount.value.toInt().toString(),
                 symbol: controller.fromSymbol,
                 currencyCode: controller.fromCurrency.value,
                 onChanged: controller.onFromAmountChanged,
                 onCurrencyTap: () => _showPicker(context, controller, isFrom: true),
-              ),
+              )),
             ],
           ),
         ),
@@ -161,7 +167,13 @@ class _ConverterRow extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              AppText(data: 'To', fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+              Row(
+                children: [
+                  AppText(data: 'To', fontSize: context.sp(14), fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                  SizedBox(width: context.w(4)),
+                  AppText(data: "(Recent Used Currency)", fontSize: context.sp(12), fontWeight: FontWeight.w600, color: AppColors.textSecondary),
+                ],
+              ),
               SizedBox(height: context.h(8)),
               Obx(() => _AmountField(
                 initialValue: controller.formatTo(controller.toAmount.value),
@@ -466,35 +478,44 @@ class _CurrencyPickerSheet extends StatelessWidget {
           children: [
             AppText(data: 'Select Currency', fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
             SizedBox(height: context.h(16)),
-            ...CurrencyController.currencies.map((c) => GestureDetector(
-              onTap: () {
-                if (isLiveBase) {
-                  controller.setLiveBaseCurrency(c.code);
-                } else if (isFrom) {
-                  controller.setFromCurrency(c.code);
-                } else {
-                  controller.setToCurrency(c.code);
-                }
-                Get.back();
-              },
-              child: Container(
-                margin: EdgeInsets.only(bottom: context.h(10)),
-                padding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
-                decoration: BoxDecoration(
-                  color: AppColors.scaffoldBg,
-                  borderRadius: BorderRadius.circular(context.w(12)),
-                  border: Border.all(color: AppColors.inputBorder),
-                ),
-                child: Row(
-                  children: [
-                    AppText(data: c.symbol, fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary),
-                    SizedBox(width: context.w(14)),
-                    Expanded(child: AppText(data: c.name, fontSize: 15, color: AppColors.textPrimary)),
-                    AppText(data: c.code, fontSize: 13, color: AppColors.textSecondary),
-                  ],
-                ),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: CurrencyController.currencies.length,
+                itemBuilder: (context, index) {
+                  final c = CurrencyController.currencies[index];
+                  return GestureDetector(
+                    onTap: () {
+                      if (isLiveBase) {
+                        controller.setLiveBaseCurrency(c.code);
+                      } else if (isFrom) {
+                        controller.setFromCurrency(c.code);
+                      } else {
+                        controller.setToCurrency(c.code);
+                      }
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.only(bottom: context.h(10)),
+                      padding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
+                      decoration: BoxDecoration(
+                        color: AppColors.scaffoldBg,
+                        borderRadius: BorderRadius.circular(context.w(12)),
+                        border: Border.all(color: AppColors.inputBorder),
+                      ),
+                      child: Row(
+                        children: [
+                          AppText(data: c.symbol, fontSize: 20, fontWeight: FontWeight.w700, color: AppColors.primary),
+                          SizedBox(width: context.w(14)),
+                          Expanded(child: AppText(data: c.name, fontSize: 15, color: AppColors.textPrimary)),
+                          AppText(data: c.code, fontSize: 13, color: AppColors.textSecondary),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-            )),
+            ),
           ],
         ),
       ),
