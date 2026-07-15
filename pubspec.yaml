@@ -27,6 +27,8 @@ dependencies:
   just_audio: ^0.9.40
   flutter_math_fork: ^0.7.2
   lottie: ^3.1.0
+  flutter_tts: ^4.0.2
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:

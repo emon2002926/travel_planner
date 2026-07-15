@@ -46,9 +46,6 @@ class ChatPage extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Header
-// ─────────────────────────────────────────────
 
 class _ChatHeader extends StatelessWidget {
   final ChatController controller;
@@ -145,7 +142,14 @@ class _AvatarStack extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(context.w(24))),
       ),
-      builder: (_) => _AddPeopleSheet(controller: controller),
+      builder: (sheetContext) => AnimatedPadding(
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOut,
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+        ),
+        child: _AddPeopleSheet(controller: controller),
+      ),
     );
   }
 }
@@ -172,9 +176,7 @@ class _InitialAvatar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Empty state
-// ─────────────────────────────────────────────
+
 
 class _EmptyChat extends StatelessWidget {
   final ChatController controller;
@@ -229,9 +231,6 @@ class _QuickReplies extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Message list
-// ─────────────────────────────────────────────
 
 class _MessageList extends StatelessWidget {
   final ChatController controller;
@@ -411,9 +410,7 @@ class _TypingIndicator extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Input bar
-// ─────────────────────────────────────────────
+
 
 class _InputBar extends StatelessWidget {
   final ChatController controller;
@@ -429,19 +426,23 @@ class _InputBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () {},
+          Obx(() => GestureDetector(
+            onTap: () => controller.toggleListening(),
             child: Container(
               width: context.w(46),
               height: context.w(46),
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: controller.isListening.value ? AppColors.primary : AppColors.surface,
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColors.inputBorder),
               ),
-              child: Icon(Icons.mic_none_outlined, color: AppColors.primary, size: context.sp(22)),
+              child: Icon(
+                controller.isListening.value ? Icons.mic : Icons.mic_none_outlined,
+                color: controller.isListening.value ? Colors.white : AppColors.primary,
+                size: context.sp(22),
+              ),
             ),
-          ),
+          )),
           SizedBox(width: context.w(10)),
           Expanded(
             child: Container(
@@ -484,88 +485,112 @@ class _InputBar extends StatelessWidget {
   }
 }
 
-// ─────────────────────────────────────────────
-//  Add People bottom sheet
-// ─────────────────────────────────────────────
-
-class _AddPeopleSheet extends StatelessWidget {
+class _AddPeopleSheet extends StatefulWidget {
   final ChatController controller;
   const _AddPeopleSheet({required this.controller});
 
   @override
+  State<_AddPeopleSheet> createState() => _AddPeopleSheetState();
+}
+
+class _AddPeopleSheetState extends State<_AddPeopleSheet> {
+  final _scrollController = ScrollController();
+  final _emailFieldKey = GlobalKey();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToEmail() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (_scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOut,
+          );
+        }
+      });
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return DraggableScrollableSheet(
-      expand: false,
-      initialChildSize: 0.85,
-      maxChildSize: 0.95,
-      minChildSize: 0.5,
-      builder: (_, scrollCtrl) => Padding(
-        padding: EdgeInsets.fromLTRB(context.w(20), context.h(24), context.w(20), 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            AppText(data: 'Add People', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
-            SizedBox(height: context.h(4)),
-            AppText(data: 'Select from dropdown to add friends', fontSize: 14, color: AppColors.textSecondary),
-            SizedBox(height: context.h(20)),
-            Expanded(
-              child: Obx(() => ListView(
-                controller: scrollCtrl,
-                children: [
-                  if (controller.addedContacts.isNotEmpty) ...[
-                    AppText(data: 'Added', fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    SizedBox(height: context.h(12)),
-                    ...controller.addedContacts.map((c) => _ContactRow(contact: c, controller: controller)),
-                    SizedBox(height: context.h(20)),
-                  ],
-                  if (controller.moreContacts.isNotEmpty) ...[
-                    AppText(data: 'Add More People', fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                    SizedBox(height: context.h(12)),
-                    ...controller.moreContacts.map((c) => _ContactRow(contact: c, controller: controller)),
-                    SizedBox(height: context.h(20)),
-                  ],
-                  AppText(data: 'Email Addess', fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
-                  SizedBox(height: context.h(10)),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: AppColors.inputBorder),
-                      borderRadius: BorderRadius.circular(context.w(12)),
-                    ),
-                    child: TextField(
-                      controller: controller.emailController,
-                      style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
-                      decoration: InputDecoration(
-                        hintText: 'Rhebhek@gmail.com',
-                        hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(15)),
-                        contentPadding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ),
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
+      ),
+      padding: EdgeInsets.fromLTRB(context.w(20), context.h(24), context.w(20), 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AppText(data: 'Add People', fontSize: 20, fontWeight: FontWeight.w800, color: AppColors.textPrimary),
+          SizedBox(height: context.h(4)),
+          AppText(data: 'Select from dropdown to add friends', fontSize: 14, color: AppColors.textSecondary),
+          SizedBox(height: context.h(20)),
+          Flexible(
+            child: Obx(() => ListView(
+              controller: _scrollController,
+              shrinkWrap: true,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              children: [
+                if (widget.controller.addedContacts.isNotEmpty) ...[
+                  AppText(data: 'Added', fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                  SizedBox(height: context.h(12)),
+                  ...widget.controller.addedContacts.map((c) => _ContactRow(contact: c, controller: widget.controller)),
                   SizedBox(height: context.h(20)),
-                  GestureDetector(
-                    onTap: () => Get.back(),
-                    child: Container(
-                      width: double.infinity,
-                      padding: EdgeInsets.symmetric(vertical: context.h(16)),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary,
-                        borderRadius: BorderRadius.circular(context.w(50)),
-                      ),
-                      alignment: Alignment.center,
-                      child: AppText(data: 'Save', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+                ],
+
+                AppText(data: 'Email Address', fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+                SizedBox(height: context.h(10)),
+                Container(
+                  key: _emailFieldKey,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.inputBorder),
+                    borderRadius: BorderRadius.circular(context.w(12)),
+                  ),
+                  child: TextField(
+                    controller: widget.controller.emailController,
+                    onTap: _scrollToEmail,
+                    style: TextStyle(fontSize: context.sp(15), color: AppColors.textPrimary),
+                    decoration: InputDecoration(
+                      hintText: 'rhebhek@gmail.com',
+                      hintStyle: TextStyle(color: AppColors.textSecondary, fontSize: context.sp(15)),
+                      contentPadding: EdgeInsets.symmetric(horizontal: context.w(16), vertical: context.h(14)),
+                      border: InputBorder.none,
                     ),
                   ),
-                  SizedBox(height: context.h(32)),
-                ],
-              )),
+                ),
+                SizedBox(height: context.h(20)),
+              ],
+            )),
+          ),
+          Padding(
+            padding: EdgeInsets.only(bottom: context.h(20)),
+            child: GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: context.h(16)),
+                decoration: BoxDecoration(
+                  color: AppColors.primary,
+                  borderRadius: BorderRadius.circular(context.w(50)),
+                ),
+                alignment: Alignment.center,
+                child: AppText(data: 'Save', fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white),
+              ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 class _ContactRow extends StatelessWidget {
   final ChatContact contact;

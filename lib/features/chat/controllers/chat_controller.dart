@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+
+import 'dart:io' show Platform;
+
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class ChatMember {
   final String id;
@@ -61,6 +66,8 @@ class ChatContact {
   });
 }
 
+
+
 class ChatController extends GetxController {
   final RxList<ChatMember>  members     = <ChatMember>[].obs;
   final RxList<ChatMessage> messages    = <ChatMessage>[].obs;
@@ -71,6 +78,11 @@ class ChatController extends GetxController {
   final scrollController = ScrollController();
   final emailController = TextEditingController();
 
+  // Speech-to-text (mic button)
+  final stt.SpeechToText speechToText = stt.SpeechToText();
+  final RxBool isListening = false.obs;
+  final RxBool isSttAvailable = false.obs;
+
   static const _myId = 'me';
 
   static const quickReplies = ['Hello Guys, What\'s up?', 'Hi, Everyone.'];
@@ -79,6 +91,7 @@ class ChatController extends GetxController {
   void onInit() {
     super.onInit();
     _seedData();
+    _initStt();
   }
 
   void _seedData() {
@@ -96,6 +109,57 @@ class ChatController extends GetxController {
       ChatContact(id: 'c5', name: 'Hasnine Jarir', email: 'hasnine@gmail.com', isAdded: false),
       ChatContact(id: 'c6', name: 'Hasnine Jarir', email: 'hasnine@gmail.com', isAdded: false),
     ]);
+  }
+
+  Future<void> _initStt() async {
+    try {
+      final available = await speechToText.initialize(
+        onStatus: (status) {
+          debugPrint('STT status: $status');
+          if (status == 'notListening' || status == 'done') {
+            isListening.value = false;
+          }
+        },
+        onError: (error) {
+          debugPrint('STT error: $error');
+          isListening.value = false;
+        },
+      );
+      isSttAvailable.value = available;
+    } catch (e) {
+      debugPrint('STT init failed: $e');
+      isSttAvailable.value = false;
+    }
+  }
+
+  /// Called when the mic button is tapped.
+  Future<void> toggleListening() async {
+    if (!isSttAvailable.value) {
+      await _initStt();
+      if (!isSttAvailable.value) {
+        Get.snackbar('Unavailable', 'Speech recognition is not available on this device');
+        return;
+      }
+    }
+
+    if (isListening.value) {
+      await speechToText.stop();
+      isListening.value = false;
+      return;
+    }
+
+    isListening.value = true;
+    await speechToText.listen(
+      onResult: (result) {
+        textController.text = result.recognizedWords;
+        textController.selection = TextSelection.fromPosition(
+          TextPosition(offset: textController.text.length),
+        );
+      },
+      listenFor: const Duration(seconds: 30),
+      pauseFor: const Duration(seconds: 3),
+      localeId: 'en_US',
+    );
   }
 
   void seedMessages() {
@@ -132,6 +196,10 @@ class ChatController extends GetxController {
 
   void sendMessage(String text) {
     if (text.trim().isEmpty) return;
+    if (isListening.value) {
+      speechToText.stop();
+      isListening.value = false;
+    }
     messages.add(ChatMessage(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       senderId: _myId, senderName: 'Me', senderRole: '',
@@ -183,6 +251,7 @@ class ChatController extends GetxController {
     textController.dispose();
     scrollController.dispose();
     emailController.dispose();
+    speechToText.stop();
     super.onClose();
   }
 }
